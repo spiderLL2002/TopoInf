@@ -1,0 +1,9 @@
+__pycache__/
+processed/
+data/
+
+# **/**/*_performance/*
+# !**/**/*.ipynb
+*.log
+*copy.*
+*backup.*
