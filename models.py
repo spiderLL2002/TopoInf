@@ -177,6 +177,8 @@ class SGC_Net(torch.nn.Module):
         a_hat = get_normalized_adj_with_renormalization(edge_index, num_nodes)
         
         for _ in range(self.num_layers):
+            
+            a_hat = a_hat.to(x.device)
             x = a_hat @ x
 
         for i in range(self.num_lins): 

@@ -1,19 +1,18 @@
-### `exp_run.sh` File ###
-### TO RUN: `sh exp_run.sh` ###
+### `run_exp.sh` File ###
+### TO RUN: `sh run_exp.sh` ###
 
 python topoinf_train_model.py \
 	--dataset cora \
-	--model-list GCN SGC APPNP MLP \
+	--model-list SGC APPNP MLP GCN  \
 	--num-layers 3 \
 	--delete-unit mode_ratio \
 	--delete-mode-list pos neg \
 	--delete-strategy topoinf \
-	--delete-rate-list 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 \
 	--k-order 3 \
 	--coefficients 0.0 0.0 1.0 \
 	--topoinf-threshold 0.0005 \
 
-
+:<<"a"
 python topoinf_train_model.py \
 	--dataset citeseer \
 	--model-list GCN SGC APPNP MLP \
@@ -21,7 +20,6 @@ python topoinf_train_model.py \
 	--delete-unit mode_ratio \
 	--delete-mode-list pos neg \
 	--delete-strategy topoinf \
-	--delete-rate-list 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 \
 	--k-order 3 \
 	--coefficients 0.0 0.0 1.0 \
 	--topoinf-threshold 0.0005 \
@@ -34,7 +32,6 @@ python topoinf_train_model.py \
 	--delete-unit mode_ratio \
 	--delete-mode-list pos neg \
 	--delete-strategy topoinf \
-	--delete-rate-list 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 \
 	--k-order 3 \
 	--coefficients 0.0 0.0 1.0 \
 	--topoinf-threshold 0.0005 \
@@ -47,7 +44,6 @@ python topoinf_train_model.py \
 	--delete-unit mode_ratio \
 	--delete-mode-list pos neg \
 	--delete-strategy topoinf \
-	--delete-rate-list 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 \
 	--k-order 3 \
 	--coefficients 0.0 0.0 1.0 \
 	--topoinf-threshold 0.0005 \
@@ -82,3 +78,4 @@ python topoinf_train_model.py \
 ###################################
 #      NUM TOTAL TASKS:    6      #
 ###################################
+a

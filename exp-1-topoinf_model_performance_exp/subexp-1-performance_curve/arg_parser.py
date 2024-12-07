@@ -11,9 +11,9 @@ def add_argument_base(parser):
                                                         'actor', 'texas', 'cornell', 'wisconsin', 
                                                         'amazon-ratings', 'roman-empire'],
                         default='cora')
-    parser.add_argument('--model-list', nargs='*', type=str, choices=['GCN', 'SGC', 'APPNP', 'MLP', 'GPRGNN', 'BERNNET'], 
-                        default=['GCN', 'SGC', 'APPNP', 'MLP', 'GPRGNN', 'BERNNET'])
-    parser.add_argument('--device', type=int, default=0, help='GPU device (<0 for CPU).')
+    parser.add_argument('--model-list', nargs='*', type=str, choices=[ 'SGC', 'APPNP', 'MLP', 'GPRGNN', 'BERNNET','GCN'], 
+                        default=['SGC', 'APPNP', 'MLP', 'GPRGNN', 'BERNNET','GCN'])
+    parser.add_argument('--device', type=int, default=6, help='GPU device (<0 for CPU).')
     parser.add_argument('--n-runs', type=int, default=5, help='number of runs.')
     ### Splitting Setting ###
     parser.add_argument('--split-mode', type=str, choices=['ratio', 'number'], 
@@ -41,7 +41,7 @@ def add_argument_base(parser):
     ### Training Parameters ###
     parser.add_argument('--n-epochs', type=int, default=200, help='number of epochs.')
     parser.add_argument('--eval-interval', type=int, default=1, help='number of epochs.')
-    parser.add_argument('--print-interval', type=int, default=5, help='number of epochs.')
+    parser.add_argument('--print-interval', type=int, default=50, help='number of epochs.')
     parser.add_argument('--early_stopping', type=int, default=100, help='early stopping epochs.')
     parser.add_argument('--early_stopping_tolerance', type=int, default=1, help='early stopping tolerance in percentage.')
     ### I/O Parameters ###
@@ -92,13 +92,16 @@ def add_argument_base(parser):
                                                 r' all random deleting means randomly deleting edges in graph, topoinf random deleting means randomly deleting edges in positive/negative edges'
                         )
     parser.add_argument('--delete-rate-list', nargs='*', type=float, 
-                        default=[round(0.1*r, 1) for r in range(1, 11)], 
+                        default=[0.1]*9, 
                         help='deleting rate list.')
     parser.add_argument('--delete-num-list', nargs='*', type=int, 
-                        default=[100*n for n in range(1, 6)], 
+                        default=[100]*6, 
                         help='deleting number list.')
     parser.add_argument('--topoinf-threshold', type=float, 
                         default=1e-2, help='>= thr as positive edges, <= -thr as negative edges.')
+    
+    parser.add_argument('--delete-step-length', type=int, 
+                        default=5, help='the length of delete iteration')
     
     # args = parser.parse_args()                    # NOTE: used when using command line
     # args = parser.parse_args(args=[])             # NOTE: used when using jupyter notebook

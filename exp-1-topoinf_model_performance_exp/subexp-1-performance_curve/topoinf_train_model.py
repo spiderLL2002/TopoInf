@@ -2,13 +2,13 @@ import sys, os
 import random
 import copy
 import torch
-
+ 
 from subexp_special_utils import get_save_dir
 from arg_parser import init_args
 # UPPER_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))         # NOTE: for .py
 UPPER_DIR = os.path.dirname(os.path.abspath(os.getcwd()))    # NOTE: for .ipynb
 sys.path.append(UPPER_DIR)
-from exp_special_utils import RunExpWrapper, get_topoinf_wrapper, topoinf_based_deleting_edges
+from exp_special_utils import RunExpWrapper, get_topoinf_wrapper, topoinf_based_deleting_edges,get_edges_nums
 
 sys.path.append(os.path.dirname(UPPER_DIR))
 from dataset_loader import DataLoader
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         data.val_mask = data.val_mask[:, 0]
     
     print_pyg_data_split(data)
-    print('DATA:', data)
+    #print('DATA:', data)
 
     ### Define loss function ###
     criterion = torch.nn.NLLLoss()
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     ### Transfer to device ###
     device = torch.device("cuda:"+str(args.device)) if torch.cuda.is_available() and args.device>=0 else torch.device("cpu")
     data = data.to(device)
-    data_topoinf = copy.deepcopy(data)
+    
 
     ### Generate SEEDS for all runs ###
     fix_seed(args.seed)
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     recording_dict = copy.deepcopy(vars(args))
 
     topoinf_all_e = get_topoinf_wrapper(data, args)
-
+    #args.model_list, choices=['GCN', 'SGC', 'APPNP', 'MLP', 'GPRGNN', 'BERNNET'], 
     for model_name in args.model_list:
         ## Define model
         args.model = model_name
@@ -80,33 +80,35 @@ if __name__ == '__main__':
         args.skip_delete = True
         analysed_result = RunExpWrapper(data, model, args, criterion, SEEDS)
         recording_dict[model_name]['none'] = analysed_result
-
         if model_name not in ['MLP']:
             args.skip_delete = False
+            pos_num , neg_num = get_edges_nums(topoinf_all_e, args)   
+            #第二层循环 ,args.delete_mode_list,  choices=['pos', 'neg'],
+            data_delete_iteration = copy.deepcopy(data)
+            topoinf_all_e_delete_iteration = copy.deepcopy(topoinf_all_e)
+            edges_haven_deleted = set()
             for delete_mode in args.delete_mode_list:
                 args.delete_mode = delete_mode
-
                 if delete_mode not in recording_dict[model_name]:
                     recording_dict[model_name][delete_mode] = {}
-                
+                #删除的比例 default=[0.1]*9, 
                 delete_mag_list = args.delete_rate_list if args.delete_unit in ['mode_ratio', 'ratio'] \
                                 else args.delete_num_list
-                
+                # magnitude -强度
                 for delete_mag in delete_mag_list:
                     if args.delete_unit in ['mode_ratio', 'ratio']:
                         args.delete_rate = delete_mag
+                        args.delete_num = pos_num*delete_mag if delete_mode == "pos" else neg_num *delete_mag
                     else:
                         args.delete_num = delete_mag
-                    
+                    args.delete_num = int(args.delete_num)
                     if args.save_detailed_perf or args.save_reduced_perf:
                         args.save_dir = get_save_dir(args)      # NOTE: for saving experimental results
-
                     ### Delete edges based on TopoInf ###    
                     fix_seed(args.seed)
-                    data_topoinf.edge_index, delete_info = topoinf_based_deleting_edges(data, topoinf_all_e, args)
-
-                    analysed_result = RunExpWrapper(data_topoinf, model, args, criterion, SEEDS)
-                    analysed_result['delete_info'] = delete_info
+                    topoinf_all_e_delete_iteration ,data_delete_iteration = topoinf_based_deleting_edges(edges_haven_deleted , data_delete_iteration,topoinf_all_e_delete_iteration, args )
+                    analysed_result = RunExpWrapper(data_delete_iteration, model, args, criterion, SEEDS)
+                    #analysed_result['delete_info'] = delete_info
                     recording_dict[model_name][delete_mode][delete_mag] = analysed_result
         
         # save recording when finished one model
