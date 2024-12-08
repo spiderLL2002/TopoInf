@@ -1,18 +1,8 @@
 ### `run_exp.sh` File ###
 ### TO RUN: `sh run_exp.sh` ###
 
-python topoinf_train_model.py \
-	--dataset cora \
-	--model-list  GCN APPNP MLP  SGC  \
-	--num-layers 3 \
-	--delete-unit mode_ratio \
-	--delete-mode-list pos neg \
-	--delete-strategy topoinf \
-	--k-order 3 \
-	--coefficients 0.0 0.0 1.0 \
-	--topoinf-threshold 0.0005 \
 
-:<<"a"
+
 python topoinf_train_model.py \
 	--dataset citeseer \
 	--model-list GCN SGC APPNP MLP \
@@ -22,7 +12,7 @@ python topoinf_train_model.py \
 	--delete-strategy topoinf \
 	--k-order 3 \
 	--coefficients 0.0 0.0 1.0 \
-	--topoinf-threshold 0.0005 \
+	--topoinf-threshold 0.0005 \ 
 
 
 python topoinf_train_model.py \
@@ -73,9 +63,18 @@ python topoinf_train_model.py \
 	--k-order 3 \
 	--coefficients 0.0 0.0 1.0 \
 	--topoinf-threshold 0.0005 \
-
+	
+python topoinf_train_model.py \
+	--dataset cora \
+	--model-list  GCN APPNP MLP  SGC  \
+	--num-layers 3 \
+	--delete-unit mode_ratio \
+	--delete-mode-list pos neg \
+	--delete-strategy topoinf \
+	--k-order 3 \
+	--coefficients 0.0 0.0 1.0 \
+	--topoinf-threshold 0.0005 \
 
 ###################################
 #      NUM TOTAL TASKS:    6      #
 ###################################
-a

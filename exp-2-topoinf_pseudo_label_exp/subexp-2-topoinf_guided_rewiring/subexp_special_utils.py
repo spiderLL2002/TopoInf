@@ -6,7 +6,7 @@ import sys
 UPPER_DIR = os.path.dirname(os.path.abspath(os.getcwd()))    # NOTE: for .ipynb
 sys.path.append(UPPER_DIR)
 
-
+ 
 def get_save_dir(args):
     dataset_model_setting = f"{args.dataset.lower()}_{args.model.lower()}"
     topoinf_delete_setting = \

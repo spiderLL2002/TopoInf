@@ -284,5 +284,5 @@ def topoinf_based_deleting_edges(edges_haven_deleted,data,topoinf_all_e , args):
             delete_edges = get_delete_edges_wrapper(edges_haven_deleted,now_topoinf_all_e, args)
         update_edge_index(data, delete_edges)
         now_topoinf_all_e = update_topoinf(edges_haven_deleted ,data,now_topoinf_all_e,delete_edges,args)
-        print(len(edges_haven_deleted))
+        #print(len(edges_haven_deleted))
     return now_topoinf_all_e ,data

@@ -16,67 +16,7 @@ sys.path.append(UPPER_DIR)
 sys.path.append(os.path.dirname(UPPER_DIR))
 from base_utils.base_general_utils import fix_seed
 from base_utils.base_training_utils import train, eval, print_eval_result, get_optimizer
-
- 
-def update_edge_index(G_data: Union[torch_geometric.data.Data, nx.graph.Graph], delete_edges: Union[list, tuple]):
-    """Cut edges according to delete_edges.
-    """
-    if isinstance(G_data, nx.graph.Graph):
-        G_networkx = G_data.copy()
-        _device = 'cpu'
-    elif isinstance(G_data, torch_geometric.data.Data):
-        G_networkx = to_networkx(G_data, node_attrs=None, to_undirected=True, remove_self_loops=True)
-        _device = G_data.edge_index.device
-    else:
-        raise NotImplementedError
-
-    G_networkx.remove_edges_from(delete_edges)
-    # updated edge_index
-    edge_index = torch.tensor(np.array(G_networkx.to_directed().edges).T).to(_device)
-    # NOTE: remember to turn Graph into directed and move edge_index to _device.
-
-    return G_networkx, edge_index
-
-
-def topoinf_based_deleting_edges(data, topoinf_all_e: dict, unit_value, args):
-    ### Get Deleting Edges ###
-    topoinf_all_e_sorted = sorted(topoinf_all_e.items(), key=lambda item: item[1], reverse=True)
-    topoinf_all_e_tensor = torch.tensor(list(topoinf_all_e.values()))
-    num_pos_edges = (topoinf_all_e_tensor > args.topoinf_threshold).sum().item()
-    num_neg_edges = (topoinf_all_e_tensor < -args.topoinf_threshold).sum().item()
-    print(f"[Info] [{len(topoinf_all_e_sorted)}] computed edges | [{num_pos_edges}] pos edges | [{num_neg_edges}] neg edges.")
-
-    if args.delete_unit == 'mode_ratio':
-        if args.delete_mode == 'pos':
-            delete_num = int(num_pos_edges*unit_value)
-        elif args.delete_mode == 'neg':
-            delete_num = int(num_neg_edges*unit_value)
-    elif args.delete_unit == 'number':
-        delete_num = unit_value
-    elif args.delete_unit == 'ratio':
-        num_edges = len(topoinf_all_e_sorted)
-        delete_num = int(num_edges*unit_value)
-
-    if args.delete_mode == 'pos':
-        if delete_num > num_pos_edges:
-            print(f"[Warning] num of del edges [{delete_num}] > num of pos edges [{num_pos_edges}]")
-            delete_num = num_pos_edges  # NOTE: delete_num = max(delete_num, num_pos_edges)
-        delete_edges = [edge for edge, _ in topoinf_all_e_sorted[:delete_num]]
-        print(f"[Info] delete [{delete_num}] edges out of [{num_pos_edges}] pos edges.")
-    elif args.delete_mode == 'neg':
-        if delete_num > num_neg_edges:
-            print(f"[Warning] num of del edges [{delete_num}] > num of neg edges [{num_neg_edges}]")
-            delete_num = num_neg_edges  # NOTE: delete_num = max(delete_num, num_neg_edges)
-        delete_edges = [edge for edge, _ in topoinf_all_e_sorted[-delete_num:]]
-        print(f"[Info] delete [{delete_num}] edges out of [{num_neg_edges}] neg edges.")
-    
-    print(f"Deleted {delete_num} {args.delete_mode.capitalize()} Edges.")
-
-    ### Delete Edges ###
-    _, edge_index = update_edge_index(data, delete_edges)
-    
-    return edge_index
-
+from topoinf_impl import TopoInf
 
 def RunExp(data, model, args, criterion, run_index=0, seed=2023, 
             save_file_suffix="before_topoinf",
@@ -153,3 +93,84 @@ def RunExp(data, model, args, criterion, run_index=0, seed=2023,
         return model, best_eval_result_reduced
     else:
         return best_eval_result_reduced
+ 
+def update_edge_index(G_data: Union[torch_geometric.data.Data, nx.graph.Graph], delete_edges: Union[list, tuple]):
+    """Cut edges according to delete_edges.
+    """
+    if isinstance(G_data, nx.graph.Graph):
+        G_networkx = G_data.copy()
+        _device = 'cpu'
+    elif isinstance(G_data, torch_geometric.data.Data):
+        G_networkx = to_networkx(G_data, node_attrs=None, to_undirected=True, remove_self_loops=True)
+        _device = G_data.edge_index.device
+    else:
+        raise NotImplementedError
+
+    G_networkx.remove_edges_from(delete_edges)
+    # updated edge_index
+    edge_index = torch.tensor(np.array(G_networkx.to_directed().edges).T).to(_device)
+    # NOTE: remember to turn Graph into directed and move edge_index to _device.
+
+    return G_networkx, edge_index
+
+def get_edges_nums(topoinf_all_e_dict, args)  : 
+    topoinf_all_e_tensor = torch.tensor(list(topoinf_all_e_dict.values()))
+    num_pos_edges = (topoinf_all_e_tensor > args.topoinf_threshold).sum().item()
+    num_neg_edges = (topoinf_all_e_tensor < -args.topoinf_threshold).sum().item() 
+    return num_pos_edges ,num_neg_edges 
+
+def get_delete_edges_wrapper(edges_haven_deleted ,topoinf_all_e, args):
+    ### Get Deleting Edges ###
+    topoinf_all_e_sorted = sorted(topoinf_all_e.items(), key=lambda item: item[1], reverse=True)
+    
+    delete_num = args.delete_step_length
+    
+    if args.delete_mode == 'pos':
+        delete_edges = [edge for edge, _ in topoinf_all_e_sorted[:delete_num]]
+        
+    elif args.delete_mode == 'neg':
+        delete_edges = [edge for edge, _ in topoinf_all_e_sorted[-delete_num:]]
+        
+    #print(f"Deleted {delete_num} {args.delete_mode.capitalize()} Edges.")
+
+    '''delete_info = {
+        'delete_num': delete_num,
+        'ratio_in_total': delete_num / len(topoinf_all_e_tensor),
+    }'''
+    for e in delete_edges  :
+        del topoinf_all_e[e]
+        edges_haven_deleted.add(e)
+        edges_haven_deleted.add((e[1],e[0]))
+    return delete_edges
+
+def update_topoinf(edges_haven_deleted ,data,topoinf_all_e,delete_edges,args ,coefficients = None)  :
+    need_update = set() 
+    
+    
+    topoinf_calculator = TopoInf(data = data, 
+            lambda_reg = args.lambda_reg,
+            with_self_loops = not args.without_self_loops,
+            k_order = args.k_order,
+            coefficients = coefficients,
+            distance_metric_name = args.distance_metric,
+            edges_haven_deleted = edges_haven_deleted
+            )
+    now_topoinf_all_e = copy.deepcopy(topoinf_all_e)
+    node_masking = None
+    topoinf_calculator._pre_processing(node_masking = node_masking)
+    return topoinf_calculator.update_topoinf_edges_mp(delete_edges,verbose = False , topoinf_all = now_topoinf_all_e)
+
+def topoinf_based_deleting_edges(edges_haven_deleted,data,topoinf_all_e , args,coefficients = None):
+    delete_num = args.delete_num
+    k = args.delete_step_length
+    ep = delete_num // k
+    now_topoinf_all_e = copy.deepcopy(topoinf_all_e ) 
+    for _ in range(ep) : 
+        #print(data ,type(data) ,len(data))
+        delete_edges = []
+        while len(delete_edges) < args.delete_step_length :
+            delete_edges = get_delete_edges_wrapper(edges_haven_deleted,now_topoinf_all_e, args)
+        update_edge_index(data, delete_edges)
+        now_topoinf_all_e = update_topoinf(edges_haven_deleted ,data,now_topoinf_all_e,delete_edges,args,coefficients)
+        print(len(edges_haven_deleted))
+    return now_topoinf_all_e ,data

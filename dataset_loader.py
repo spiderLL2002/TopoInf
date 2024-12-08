@@ -7,8 +7,9 @@ from torch_geometric.utils import remove_self_loops, to_undirected
 from torch_geometric.utils import subgraph
  
 from ogb.nodeproppred import PygNodePropPredDataset
+import time
 
-_ALL_DATASETS_ = ['cora', 'citeseer', 'pubmed', 'computers', 'photo', 'actor']
+_ALL_DATASETS_ = [ 'computers', 'photo', 'actor' ,'cora', 'citeseer', 'pubmed']
 
 def DataLoader(dataset_name, root_path = '../data/', with_inductive_info = False):
     dataset_name = dataset_name.lower()
@@ -74,10 +75,15 @@ def analyse_class_distribution(data):
 
 
 if __name__ == '__main__':
-    for dataset_name in _ALL_DATASETS_:
-        data = DataLoader(dataset_name)
-        print(f"{dataset_name.upper()}: {data}")
-        analyse_class_distribution(data)
-        print('-'*50)
-    
-    print(f'Tested All {len(_ALL_DATASETS_)} Datasets: {_ALL_DATASETS_}')
+    while True  :
+        try:
+            for dataset_name in _ALL_DATASETS_:
+                data = DataLoader(dataset_name)
+                print(f"{dataset_name.upper()}: {data}")
+                analyse_class_distribution(data)
+                print('-'*50)
+        except Exception as e:
+            print("Fuck!")
+        print(f'Tested All {len(_ALL_DATASETS_)} Datasets: {_ALL_DATASETS_}')
+        
+        time.sleep(100)

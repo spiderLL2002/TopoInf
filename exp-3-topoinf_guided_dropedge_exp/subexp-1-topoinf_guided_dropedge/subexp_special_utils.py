@@ -12,8 +12,8 @@ from exp_special_utils import get_edge_sample_prob, guided_dropout_edge
 sys.path.append(os.path.dirname(UPPER_DIR))
 from base_utils.base_general_utils import fix_seed
 from base_utils.base_training_utils import train, eval, print_eval_result, get_optimizer
-
-
+from exp_special_utils import compute_pseudo_label_topoinf_wrapper
+from topoinf_impl import TopoInf
 def get_save_dir(args):
     dataset_model_setting = f"{args.dataset.lower()}_{args.model.lower()}"
     dropedge_setting = f"dropedge_[{args.dropedge_rate}]_dropout_[{args.dropout}]_" \
@@ -52,7 +52,7 @@ def pseudo_label_topoinf_guided_dropedge(data, topoinf_all_e, args):
 def RunExp(data, model, args, criterion, run_index=0, seed=2023, 
             save_file_suffix='wo_dropedge',
             dropedge=False, topoinf_all_e=None,
-            return_model=False):
+            return_model=False , coefficients = 0):
 
     ## Training Preparation ##
     print('#'*30+f' [Run {run_index+1}/{args.n_runs}] '+'#'*30)
@@ -82,7 +82,15 @@ def RunExp(data, model, args, criterion, run_index=0, seed=2023,
                 pseudo_label_topoinf_guided_dropedge(data, topoinf_all_e, args)
             print(f'[DropEdge Info] {data_dropouted.edge_index.size(1)} / {data.edge_index.size(1)}')
             train(model, data_dropouted, optimizer, criterion)
-
+            topoinf_calculator = TopoInf(data = data, 
+                    lambda_reg = args.lambda_reg,   
+                    with_self_loops = not args.without_self_loops,
+                    k_order = args.k_order,
+                    coefficients = coefficients,
+                    distance_metric_name = args.distance_metric
+                    )    
+            topoinf_all_e = compute_pseudo_label_topoinf_wrapper(topoinf_calculator, pseudo_label_matrix=pseudo_label_matrix.cpu(), 
+                                                             data=data, args=args)
         if epoch % args.eval_interval == 0:
             eval_result = eval(model, data, criterion=None, get_detail=False)
 
@@ -129,6 +137,6 @@ def RunExp(data, model, args, criterion, run_index=0, seed=2023,
         print(f"Save JSON File: {save_path_json}")
 
     if return_model:
-        return model, best_eval_result_reduced
+        return model, best_eval_result_reduced 
     else:
-        return best_eval_result_reduced
+        return best_eval_result_reduced 

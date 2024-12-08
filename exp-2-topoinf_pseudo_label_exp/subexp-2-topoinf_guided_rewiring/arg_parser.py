@@ -14,7 +14,7 @@ def add_argument_base(parser):
                         default='cora')
     parser.add_argument('--model', type=str, choices=['GCN', 'SGC', 'APPNP', 'GPRGNN', 'BERNNET'], 
                         default='GCN')
-    parser.add_argument('--device', type=int, default=0, help='GPU device (<0 for CPU).')
+    parser.add_argument('--device', type=int, default=6, help='GPU device (<0 for CPU).')
     parser.add_argument('--n-runs', type=int, default=10, help='number of runs.')
     ### Splitting Setting ###
     parser.add_argument('--split-mode', type=str, choices=['ratio', 'number'], 
@@ -78,11 +78,13 @@ def add_argument_base(parser):
     parser.add_argument('--delete-mode', type=str, choices=['pos', 'neg'], 
                         default='pos', help=r'two common deleting mode, i.e., deleting positive edges and deleting negative edges.')
     # parser.add_argument('--delete-rate', type=float, default=0.1, help='deleting rate.')
-    parser.add_argument('--delete-rate-list', type=float, nargs='+', 
-                        default=[0.2], help='deleting rate list.')
+    parser.add_argument('--delete-rate-list', nargs='*', type=float, 
+                        default=[0.1]*9, 
+                        help='deleting rate list.')
     # parser.add_argument('--delete-num', type=int, default=400, help='deleting number.')
-    parser.add_argument('--delete-num-list', type=int, nargs='+', 
-                        default=[400], help='deleting number list.')
+    parser.add_argument('--delete-num-list', nargs='*', type=int, 
+                        default=[100]*6, 
+                        help='deleting number list.')
     parser.add_argument('--topoinf-threshold', type=float, 
                         default=5e-2, help='>= thr as positive edges, <= -thr as negative edges.')
     ## Before Computing ##
@@ -95,7 +97,7 @@ def add_argument_base(parser):
                         help='distance metric for measuring distance.')
     parser.add_argument('--coefficients', type=str, 
                         choices=['last', 'aver'], 
-                        default='last',
+                        default='last', 
                         help='graph filter coefficients for TopoInf.')
     parser.add_argument('--lambda-reg', type=float, 
                         default=0.1, help='the coefficient for regularization.')  

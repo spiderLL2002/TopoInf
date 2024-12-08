@@ -92,7 +92,7 @@ def add_argument_base(parser):
                                                 r' all random deleting means randomly deleting edges in graph, topoinf random deleting means randomly deleting edges in positive/negative edges'
                         )
     parser.add_argument('--delete-rate-list', nargs='*', type=float, 
-                        default=[0.1]*9, 
+                        default=[0.1]*50, 
                         help='deleting rate list.')
     parser.add_argument('--delete-num-list', nargs='*', type=int, 
                         default=[100]*6, 
