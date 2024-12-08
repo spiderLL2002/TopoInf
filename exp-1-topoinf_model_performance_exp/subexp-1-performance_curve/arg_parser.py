@@ -101,7 +101,7 @@ def add_argument_base(parser):
                         default=1e-2, help='>= thr as positive edges, <= -thr as negative edges.')
     
     parser.add_argument('--delete-step-length', type=int, 
-                        default=5, help='the length of delete iteration')
+                        default=20, help='the length of delete iteration')
     
     # args = parser.parse_args()                    # NOTE: used when using command line
     # args = parser.parse_args(args=[])             # NOTE: used when using jupyter notebook

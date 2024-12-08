@@ -22,7 +22,7 @@ from torch_geometric.utils import one_hot, remove_self_loops
 from torch_geometric.utils.convert import to_networkx
 
 from torch_sparse import SparseTensor
-
+ 
 import torch.multiprocessing as mp
 
 
@@ -239,7 +239,7 @@ def _compute_topoinf_edge_list(edge_list = None, _proc = int(mp.cpu_count()/2), 
 
     org_num_threads = torch.get_num_threads()
     torch.set_num_threads(1)        # NOTE: avoid multiprocessing hanging bug!
-
+    if chunksize <1 : return {}
     pool = mp.Pool(processes=_proc)
     # topoinf_all_e_list = pool.map(_topoinf_single_edge, edge_list, chunksize=chunksize)
     topoinf_all_e_list = pool.imap_unordered(_topoinf_single_edge, edge_list, chunksize=chunksize)
@@ -624,7 +624,7 @@ class TopoInf:
         #print("本次删除的边" , delete_list)
         #print("需要update的边的数量", len(edge_list))
         #print("update了哪些边",print(edge_list))
-        
+        if len(delete_list) < 1 : return topoinf_all
         topoinf_all_e = copy.deepcopy(topoinf_all)
         topoinf_detail_all_e = _compute_topoinf_edge_list(edge_list = edge_list, _proc = _proc, verbose = verbose)
         self.computed_topoinf_detailed.update(topoinf_detail_all_e)

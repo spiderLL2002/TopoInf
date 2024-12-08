@@ -45,7 +45,7 @@ def add_argument_base(parser):
     ### Training Parameters ###
     parser.add_argument('--n-epochs', type=int, default=200, help='number of epochs.')
     parser.add_argument('--eval-interval', type=int, default=1, help='number of epochs.')
-    parser.add_argument('--print-interval', type=int, default=5, help='number of epochs.')
+    parser.add_argument('--print-interval', type=int, default=20, help='number of epochs.')
     parser.add_argument('--early_stopping', type=int, default=100, help='early stopping epochs.')
     parser.add_argument('--early_stopping_tolerance', type=int, default=1, help='early stopping tolerance in percentage.')
 
@@ -79,7 +79,7 @@ def add_argument_base(parser):
                         default='pos', help=r'two common deleting mode, i.e., deleting positive edges and deleting negative edges.')
     # parser.add_argument('--delete-rate', type=float, default=0.1, help='deleting rate.')
     parser.add_argument('--delete-rate-list', type=float, nargs='+', 
-                        default=[0.1], help='deleting rate list.')
+                        default=[0.2], help='deleting rate list.')
     # parser.add_argument('--delete-num', type=int, default=400, help='deleting number.')
     parser.add_argument('--delete-num-list', type=int, nargs='+', 
                         default=[400], help='deleting number list.')
@@ -106,6 +106,9 @@ def add_argument_base(parser):
                         help='use single processing (default: use multiprocessing to accelerate computation).')
     parser.add_argument('--mp-core', type=int, default=8, 
                         help='number of cores used for multiprocessing.')
+    parser.add_argument('--delete-step-length', type=int, 
+                        default=20, help='the length of delete iteration')
+    
     # After Computing
     
     # args = parser.parse_args()                    # NOTE: used when using command line
@@ -121,4 +124,4 @@ def init_args(params=sys.argv[1:]):
     parser = add_argument_base(parser)
     args = parser.parse_args(params)
     
-    return args
+    return args 

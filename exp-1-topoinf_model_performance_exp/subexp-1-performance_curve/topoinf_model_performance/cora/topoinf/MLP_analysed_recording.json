@@ -1,1 +1,1 @@
-{"none": {"test_acc_list": [0.521, 0.572, 0.543, 0.54, 0.535], "test_acc_mean": 54.220000000000006, "test_acc_uncertainty": 1.5999999999999872, "test_acc_std": 1.6702095676890352}}
+{"none": {"test_acc_list": [0.521, 0.572, 0.543, 0.54, 0.535], "test_acc_mean": 54.220000000000006, "test_acc_uncertainty": 1.6599999999999895, "test_acc_std": 1.6702095676890352}}

@@ -1,5 +1,5 @@
-### `exp_1_run.sh` File ###
-### TO RUN: `sh exp_1_run.sh` ###
+### `run_exp.sh` File ###
+### TO RUN: `sh run_exp.sh` ###
 
 python topoinf_pseudo_label_guided_dropedge.py \
 	--model GCN \

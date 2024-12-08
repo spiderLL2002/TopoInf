@@ -84,10 +84,10 @@ if __name__ == '__main__':
             args.skip_delete = False
             pos_num , neg_num = get_edges_nums(topoinf_all_e, args)   
             #第二层循环 ,args.delete_mode_list,  choices=['pos', 'neg'],
-            data_delete_iteration = copy.deepcopy(data)
-            topoinf_all_e_delete_iteration = copy.deepcopy(topoinf_all_e)
-            edges_haven_deleted = set()
             for delete_mode in args.delete_mode_list:
+                data_delete_iteration = copy.deepcopy(data)
+                topoinf_all_e_delete_iteration = copy.deepcopy(topoinf_all_e)
+                edges_haven_deleted = set()
                 args.delete_mode = delete_mode
                 if delete_mode not in recording_dict[model_name]:
                     recording_dict[model_name][delete_mode] = {}
@@ -96,6 +96,8 @@ if __name__ == '__main__':
                                 else args.delete_num_list
                 # magnitude -强度
                 for delete_mag in delete_mag_list:
+                    if len(edges_haven_deleted) > pos_num +neg_num :
+                        break
                     if args.delete_unit in ['mode_ratio', 'ratio']:
                         args.delete_rate = delete_mag
                         args.delete_num = pos_num*delete_mag if delete_mode == "pos" else neg_num *delete_mag
@@ -107,7 +109,7 @@ if __name__ == '__main__':
                     ### Delete edges based on TopoInf ###    
                     fix_seed(args.seed)
                     topoinf_all_e_delete_iteration ,data_delete_iteration = topoinf_based_deleting_edges(edges_haven_deleted , data_delete_iteration,topoinf_all_e_delete_iteration, args )
-                    analysed_result = RunExpWrapper(data_delete_iteration, model, args, criterion, SEEDS)
+                    analysed_result = RunExpWrapper( data_delete_iteration, model, args, criterion, SEEDS,pos_num ,neg_num , edges_haven_deleted )
                     #analysed_result['delete_info'] = delete_info
                     recording_dict[model_name][delete_mode][delete_mag] = analysed_result
         

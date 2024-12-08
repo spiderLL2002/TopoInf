@@ -24,7 +24,7 @@ from base_utils.model_2_filter import model_2_filter
 sys.path.append(os.path.dirname(UPPER_DIR))
 
 
-def RunExpWrapper(data, model, args, criterion, SEEDS):
+def RunExpWrapper(data, model, args, criterion, SEEDS ,pos_num = 1 , neg_num = 1 , edges_haven_deleted = {} ):
     ### Train model ###
     test_acc_list = []
     for run_index in range(args.n_runs):
@@ -38,7 +38,7 @@ def RunExpWrapper(data, model, args, criterion, SEEDS):
         delete_mag = args.delete_rate if args.delete_unit in ['mode_ratio', 'ratio'] \
                             else args.delete_num
         setting_name = f'{args.dataset.upper()} {args.model.upper()} ' \
-                f'{args.delete_mode.upper()} {str(delete_mag)}'
+                f'{args.delete_mode.upper()} {len(edges_haven_deleted) /2*(pos_num + neg_num)} '
 
     test_acc_mean, test_acc_uncertainty, test_acc_std = \
         analyse_one_setting(test_acc_list, setting_name = setting_name)
@@ -279,8 +279,10 @@ def topoinf_based_deleting_edges(edges_haven_deleted,data,topoinf_all_e , args):
     now_topoinf_all_e = copy.deepcopy(topoinf_all_e ) 
     for _ in range(ep) : 
         #print(data ,type(data) ,len(data))
-        delete_edges = get_delete_edges_wrapper(edges_haven_deleted,now_topoinf_all_e, args)
+        delete_edges = []
+        while len(delete_edges) < args.delete_step_length :
+            delete_edges = get_delete_edges_wrapper(edges_haven_deleted,now_topoinf_all_e, args)
         update_edge_index(data, delete_edges)
         now_topoinf_all_e = update_topoinf(edges_haven_deleted ,data,now_topoinf_all_e,delete_edges,args)
-        #print(len(edges_haven_deleted))
+        print(len(edges_haven_deleted))
     return now_topoinf_all_e ,data

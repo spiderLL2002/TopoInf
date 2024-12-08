@@ -3,7 +3,7 @@
 
 python topoinf_train_model.py \
 	--dataset cora \
-	--model-list SGC APPNP MLP GCN  \
+	--model-list  GCN APPNP MLP  SGC  \
 	--num-layers 3 \
 	--delete-unit mode_ratio \
 	--delete-mode-list pos neg \

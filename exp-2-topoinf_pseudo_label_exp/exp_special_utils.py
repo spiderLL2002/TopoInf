@@ -17,7 +17,7 @@ sys.path.append(os.path.dirname(UPPER_DIR))
 from base_utils.base_general_utils import fix_seed
 from base_utils.base_training_utils import train, eval, print_eval_result, get_optimizer
 
-
+ 
 def update_edge_index(G_data: Union[torch_geometric.data.Data, nx.graph.Graph], delete_edges: Union[list, tuple]):
     """Cut edges according to delete_edges.
     """

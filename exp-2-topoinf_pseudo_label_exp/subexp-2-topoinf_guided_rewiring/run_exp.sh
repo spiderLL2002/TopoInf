@@ -1,5 +1,5 @@
-### `exp_1_run.sh` File ###
-### TO RUN: `sh exp_1_run.sh` ###
+### `run_exp.sh` File ###
+### TO RUN: `sh run_exp.sh` ###
 
 python topoinf_pseudo_label_train_model.py \
 	--model GCN \
@@ -7,7 +7,7 @@ python topoinf_pseudo_label_train_model.py \
 	--num-layers 3 \
 	--delete-unit number \
 	--delete-mode pos \
-	--delete-num-list 100 200 300 400 500 600 \
+	--delete-num-list 100 100 100 100 100 100 \
 	--one-hot-mask train_mask \
 
 
@@ -17,10 +17,10 @@ python topoinf_pseudo_label_train_model.py \
 	--num-layers 3 \
 	--delete-unit number \
 	--delete-mode pos \
-	--delete-num-list 100 200 300 400 500 600 \
+	--delete-num-list 100 100 100 100 100 100 \
 	--one-hot-mask train_mask val_mask \
 
-
+:<<"a"
 python topoinf_pseudo_label_train_model.py \
 	--model SGC \
 	--dataset cora \
@@ -184,3 +184,4 @@ python topoinf_pseudo_label_train_model.py \
 ###################################
 #      NUM TOTAL TASKS:   18      #
 ###################################
+a
