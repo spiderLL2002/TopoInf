@@ -38,7 +38,7 @@ def RunExpWrapper(data, model, args, criterion, SEEDS ,pos_num = 1 , neg_num = 1
         delete_mag = args.delete_rate if args.delete_unit in ['mode_ratio', 'ratio'] \
                             else args.delete_num
         setting_name = f'{args.dataset.upper()} {args.model.upper()} ' \
-                f'{args.delete_mode.upper()} {len(edges_haven_deleted) /2*(pos_num + neg_num)} '
+                f'{args.delete_mode.upper()} {len(edges_haven_deleted) /(2*(pos_num + neg_num))} '
 
     test_acc_mean, test_acc_uncertainty, test_acc_std = \
         analyse_one_setting(test_acc_list, setting_name = setting_name)
