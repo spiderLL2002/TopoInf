@@ -45,7 +45,7 @@ def add_argument_base(parser):
     ### Training Parameters ###
     parser.add_argument('--n-epochs', type=int, default=200, help='number of epochs.')
     parser.add_argument('--eval-interval', type=int, default=1, help='number of epochs.')
-    parser.add_argument('--print-interval', type=int, default=20, help='number of epochs.')
+    parser.add_argument('--print-interval', type=int, default=50, help='number of epochs.')
     parser.add_argument('--early_stopping', type=int, default=100, help='early stopping epochs.')
     parser.add_argument('--early_stopping_tolerance', type=int, default=1, help='early stopping tolerance in percentage.')
 
@@ -110,7 +110,8 @@ def add_argument_base(parser):
                         help='number of cores used for multiprocessing.')
     parser.add_argument('--delete-step-length', type=int, 
                         default=50, help='the length of delete iteration')
-    
+    parser.add_argument('--entropy-aware', type=bool, default=False, 
+                        help='whether use entropy-aware')
     # After Computing
     
     # args = parser.parse_args()                    # NOTE: used when using command line

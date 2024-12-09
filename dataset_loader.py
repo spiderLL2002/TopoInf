@@ -11,7 +11,7 @@ import time
 
 _ALL_DATASETS_ = [ 'computers', 'photo', 'actor' ,'cora', 'citeseer', 'pubmed']
 
-def DataLoader(dataset_name, root_path = '../data/', with_inductive_info = False):
+def DataLoader(dataset_name, root_path = 'data/', with_inductive_info = False):
     dataset_name = dataset_name.lower()
 
     if dataset_name in ['cora', 'citeseer', 'pubmed']:
@@ -29,7 +29,7 @@ def DataLoader(dataset_name, root_path = '../data/', with_inductive_info = False
         dataset = PygNodePropPredDataset(dataset_name, root_path)       # , transform=T.NormalizeFeatures()
     else:
         raise ValueError(f'dataset {dataset_name} not supported in dataloader')
-
+    
     data = dataset[0]
     data.num_classes = dataset.num_classes
     data.name = dataset_name
@@ -75,6 +75,28 @@ def analyse_class_distribution(data):
 
 
 if __name__ == '__main__':
+    for d in [ "citeseer" ,"cora" ,"pubmed"]:
+        data = DataLoader(dataset_name = d,
+                                root_path = 'data/')
+
+        
+        labels = data.y
+        label_to_nodes = {}
+
+        # 遍历所有节点，并根据标签进行分组
+        for node_id, label in enumerate(labels):
+            label = label.item()  # 将标签从tensor转换为标量
+            if label not in label_to_nodes:
+                label_to_nodes[label] = []
+            label_to_nodes[label].append(node_id)
+
+        # 打印分组结果
+        for label, nodes in label_to_nodes.items():
+            print(f"{d}的标签 {label} 的节点有 {len(nodes)} 个，需要算{len(nodes)**2}个topoinf")
+
+
+
+'''if __name__ == '__main__':
     while True  :
         try:
             for dataset_name in _ALL_DATASETS_:
@@ -86,4 +108,4 @@ if __name__ == '__main__':
             print("失败！！！")
         print(f'Tested All {len(_ALL_DATASETS_)} Datasets: {_ALL_DATASETS_}')
         
-        time.sleep(5)
+        time.sleep(5)'''
