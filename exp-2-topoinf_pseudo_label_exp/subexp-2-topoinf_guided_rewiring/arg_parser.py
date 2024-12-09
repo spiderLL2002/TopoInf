@@ -79,7 +79,7 @@ def add_argument_base(parser):
                         default='pos', help=r'two common deleting mode, i.e., deleting positive edges and deleting negative edges.')
     # parser.add_argument('--delete-rate', type=float, default=0.1, help='deleting rate.')
     parser.add_argument('--delete-rate-list', nargs='*', type=float, 
-                        default=[0.1]*9, 
+                        default=[0.0] + [0.1]*13, 
                         help='deleting rate list.')
     # parser.add_argument('--delete-num', type=int, default=400, help='deleting number.')
     parser.add_argument('--delete-num-list', nargs='*', type=int, 
@@ -109,7 +109,7 @@ def add_argument_base(parser):
     parser.add_argument('--mp-core', type=int, default=8, 
                         help='number of cores used for multiprocessing.')
     parser.add_argument('--delete-step-length', type=int, 
-                        default=20, help='the length of delete iteration')
+                        default=50, help='the length of delete iteration')
     
     # After Computing
     

@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     ## Load data
     data = DataLoader(dataset_name = args.dataset,
-                        root_path = '../data/')  # NOTE: specify correct data path
+                        root_path = '../../data/')  # NOTE: specify correct data path
     if args.split_mode == 'ratio':  # 60%/20%/20%
         # NOTE: if args.split_mode == 'number', use 'public' splitting.
         fix_seed(args.seed)

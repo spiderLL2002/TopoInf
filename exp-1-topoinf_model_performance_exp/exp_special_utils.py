@@ -269,6 +269,7 @@ def update_topoinf(edges_haven_deleted ,data,topoinf_all_e,delete_edges,args)  :
     now_topoinf_all_e = copy.deepcopy(topoinf_all_e)
     node_masking = None
     topoinf_calculator._pre_processing(node_masking = node_masking)
+    topoinf_calculator._set_global()
     return topoinf_calculator.update_topoinf_edges_mp(delete_edges,verbose = False , topoinf_all = now_topoinf_all_e)
 
 
@@ -280,7 +281,9 @@ def topoinf_based_deleting_edges(edges_haven_deleted,data,topoinf_all_e , args):
     for _ in range(ep) : 
         #print(data ,type(data) ,len(data))
         delete_edges = []
-        while len(delete_edges) < args.delete_step_length :
+        x = 0 
+        while len(delete_edges) < args.delete_step_length and x < 3 :
+            x += 1
             delete_edges = get_delete_edges_wrapper(edges_haven_deleted,now_topoinf_all_e, args)
         update_edge_index(data, delete_edges)
         now_topoinf_all_e = update_topoinf(edges_haven_deleted ,data,now_topoinf_all_e,delete_edges,args)

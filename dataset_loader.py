@@ -83,7 +83,7 @@ if __name__ == '__main__':
                 analyse_class_distribution(data)
                 print('-'*50)
         except Exception as e:
-            print("Fuck!")
+            print("失败！！！")
         print(f'Tested All {len(_ALL_DATASETS_)} Datasets: {_ALL_DATASETS_}')
         
-        time.sleep(100)
+        time.sleep(5)

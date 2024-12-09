@@ -2,7 +2,7 @@ import sys, os
 import random
 import copy
 import torch
- 
+import csv
 from subexp_special_utils import get_save_dir
 from arg_parser import init_args
 # UPPER_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))         # NOTE: for .py
@@ -18,6 +18,10 @@ from base_utils.base_io_utils import save_recording, make_multi_level_dir
 from base_utils.base_splitting_utils import print_pyg_data_split, rand_train_val_test_split_wrapper
 
 
+
+    
+        
+
 if __name__ == '__main__':
     
     ### Parse Args ###
@@ -28,6 +32,11 @@ if __name__ == '__main__':
     data = DataLoader(dataset_name = args.dataset,
                         root_path = '../../data/')  # NOTE: specify correct data path
     
+    parent_folder = os.path.abspath(os.path.join(os.getcwd(), "../" + args.output))
+    dataset_dir = os.path.join(parent_folder, args.dataset)
+    if not os.path.exists(dataset_dir):
+        os.makedirs(dataset_dir) 
+        
     if args.split_mode == 'ratio':  # 60%/20%/20%
         # NOTE: if args.split_mode == 'number', use 'public' splitting.
         fix_seed(args.seed)
@@ -111,8 +120,28 @@ if __name__ == '__main__':
                     topoinf_all_e_delete_iteration ,data_delete_iteration = topoinf_based_deleting_edges(edges_haven_deleted , data_delete_iteration,topoinf_all_e_delete_iteration, args )
                     analysed_result = RunExpWrapper( data_delete_iteration, model, args, criterion, SEEDS,pos_num ,neg_num , edges_haven_deleted )
                     #analysed_result['delete_info'] = delete_info
-                    recording_dict[model_name][delete_mode][delete_mag] = analysed_result
-        
+                    recording_dict[model_name][delete_mode][len(edges_haven_deleted)/(2*(pos_num + neg_num))] = analysed_result
+                    r = len(edges_haven_deleted)/(2*(pos_num + neg_num))
+                    
+                    # save recording when finished one model
+                    model_file = os.path.join(dataset_dir, f"{model_name}.csv")
+
+                    result_data = {
+                        'ratio': -r if delete_mode == 'neg' else r,
+                        'test_acc_mean': analysed_result['test_acc_mean']
+                    }
+
+                    # 如果文件不存在，写入表头；如果文件存在，直接追加数据
+                    header = ['ratio', 'test_acc_mean']
+
+                    # 使用 'a' 模式追加数据到 CSV 文件
+                    with open(model_file, mode='a', newline='') as csv_file:
+                        writer = csv.writer(csv_file)
+                        # 如果文件为空，写入表头
+                        if os.path.getsize(model_file) == 0:  # 文件为空
+                            writer.writerow(header)
+                        writer.writerow([result_data['ratio'], result_data['test_acc_mean']])
+                        
         # save recording when finished one model
         save_recording(recording = recording_dict[model_name], 
                     save_dir = make_multi_level_dir([args.perf_save_root_dir, args.dataset.lower(), args.delete_strategy]),
@@ -120,4 +149,6 @@ if __name__ == '__main__':
 
     save_recording(recording = recording_dict, 
                     save_dir = make_multi_level_dir([args.perf_save_root_dir, args.dataset.lower(), args.delete_strategy]),
-                    recording_file = f'analysed_recording.json')
+                    recording_file = f'analysed_recording.json')                
+                        
+                        

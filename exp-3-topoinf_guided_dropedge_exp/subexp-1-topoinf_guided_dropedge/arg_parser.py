@@ -10,7 +10,7 @@ def add_argument_base(parser):
                         default='cora')
     parser.add_argument('--model', type=str, choices=['GCN', 'SGC', 'APPNP', 'MLP', 'GAT', 'GPRGNN', 'BERNNET'], 
                         default='GCN')
-    parser.add_argument('--device', type=int, default=0, help='GPU device (<0 for CPU).')
+    parser.add_argument('--device', type=int, default=2, help='GPU device (<0 for CPU).')
     parser.add_argument('--n-runs', type=int, default=10, help='number of runs.')
     ### Splitting Setting ###
     parser.add_argument('--split-mode', type=str, choices=['ratio', 'number'], 

@@ -92,7 +92,7 @@ def add_argument_base(parser):
                                                 r' all random deleting means randomly deleting edges in graph, topoinf random deleting means randomly deleting edges in positive/negative edges'
                         )
     parser.add_argument('--delete-rate-list', nargs='*', type=float, 
-                        default=[0.1]*50, 
+                        default= [0.0] + [0.1]*13, 
                         help='deleting rate list.')
     parser.add_argument('--delete-num-list', nargs='*', type=int, 
                         default=[100]*6, 
@@ -101,8 +101,9 @@ def add_argument_base(parser):
                         default=1e-2, help='>= thr as positive edges, <= -thr as negative edges.')
     
     parser.add_argument('--delete-step-length', type=int, 
-                        default=20, help='the length of delete iteration')
-    
+                        default=50, help='the length of delete iteration')
+    parser.add_argument('--output',  type=str, 
+                        default="output1/", help='sub_exp-1 or sub_exp-2')
     # args = parser.parse_args()                    # NOTE: used when using command line
     # args = parser.parse_args(args=[])             # NOTE: used when using jupyter notebook
     # args = parser.parse_args(args=sys.argv[1:])   # NOTE: used when import as function
