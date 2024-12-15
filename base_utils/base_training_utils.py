@@ -53,7 +53,7 @@ def eval(model, data, criterion=None, get_detail=False):
     model.eval()
     logits = model(data)
     logits = F.log_softmax(logits, dim=1)
-
+    
     eval_result = {}
     for key, mask in data('train_mask', 'val_mask', 'test_mask'):
         eval_result[key] = compute_masked_nodes_performance(logits=logits, labels=data.y, criterion=criterion, mask=mask)
@@ -70,8 +70,24 @@ def eval(model, data, criterion=None, get_detail=False):
         eval_result['all_nodes']['logits'] = logits.cpu()
     
     return eval_result
-
-
+ 
+def calculate_entropy(model, data):
+    model.eval()
+    logits = model(data)
+    logits = F.softmax(logits, dim=1)
+    
+    entropy = -torch.sum(logits * torch.log(logits ), dim=1) 
+    entropy_dict = {}
+    for node_id, ent in enumerate(entropy):
+        entropy_dict[node_id] = ent.item()  
+        
+    '''print("Logits min: ", logits.min(), " Logits max: ", logits.max())
+    print("Entropy min and max",min(entropy_dict.values()) ,max(entropy_dict.values())) 
+    '''
+    return entropy_dict
+    
+    
+    
 def eval_pred(pred, data, criterion=None, detailed=False):
     eval_result = {}
     for key, mask in data('train_mask', 'val_mask', 'test_mask'):
@@ -86,6 +102,8 @@ def eval_pred(pred, data, criterion=None, detailed=False):
                                                                 mask=~data.train_mask)   # all nodes except train
     
     return eval_result
+
+
 
 
 def print_eval_result(eval_result, prefix=''):

@@ -12,10 +12,11 @@ from collections import deque
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
-
+from collections import defaultdict
 import torch
 import torch.nn.functional as F
-
+            
+import math
 import torch_geometric
 from torch_geometric.utils import spmm
 from torch_geometric.utils import one_hot, remove_self_loops
@@ -157,7 +158,7 @@ def k_neighbors(G, source, cutoff=0, merge=True):
     return neighbors
 
 
-def _topoinf_single_edge(edge):
+def _topoinf_single_edge(edge ):
     """
     Compute TopoInf for edge = (v_i, v_j)
     """
@@ -226,11 +227,15 @@ def _topoinf_single_edge(edge):
 
     topoinf_e_v = bias_e_v - _lambda_reg_g * denoise_e_v
     #C(A) = T(A) - lambda * Ra(Vi) , now is delta C(A)
-
+    if v_i in entropy_dict:
+        topoinf_e_v += entropy_dict[v_i] * entropy_coefficient
+    if v_j in entropy_dict:
+        topoinf_e_v += entropy_dict[v_j] * entropy_coefficient
+    topoinf_e_v -= (math.log(1 + degree_delete_edge_dict[v_i],100) + math.log(1 + degree_delete_edge_dict[v_j] ,100 ))* 5 *entropy_coefficient
     return ((v_i, v_j), [topoinf_e_v, bias_e_v, denoise_e_v])
 
 
-def _compute_topoinf_edge_list(edge_list = None, _proc = int(mp.cpu_count()/2), verbose = False):
+def _compute_topoinf_edge_list(edge_list = None, _proc = int(mp.cpu_count()/2), verbose = False,entropy_dict = {}, entropy_coefficient = 0.02):
     
     num_tasks = len(edge_list)
     chunksize, extra = divmod(num_tasks, _proc * 4)
@@ -266,6 +271,9 @@ class TopoInf:
                     k_order: int = 3, coefficients: list = None,
                     distance_metric_name: str = 'inner_product',
                     edges_haven_deleted : set = (),
+                    entropy_dict: dict = {},
+                    entropy_coefficient :float = 0.02,
+                    degree_delete_edge_dict :dict = {},
                 ):
         """Initialized a container to compute TopoInf.
         """
@@ -290,6 +298,9 @@ class TopoInf:
         self.computed_topoinf = {}
         self.computed_topoinf_detailed = {}
         self.edges_haven_deleted = edges_haven_deleted
+        self.entropy_dict = entropy_dict 
+        self.entropy_coefficient = entropy_coefficient
+        self.degree_delete_edge_dict = degree_delete_edge_dict
     def _pre_processing(self, label_matrix_g: torch.Tensor = None, node_masking: Union[set, list, tuple] = None):
         if (label_matrix_g == None) or (not isinstance(label_matrix_g, torch.Tensor)):
             self.label_matrix_g = one_hot(self.data.y, dtype=torch.float32)
@@ -325,7 +336,8 @@ class TopoInf:
         global _bias_g, _denoise_g, _lambda_reg_g
         global _k_order_g, _coefficients_g, _distance_metric_function_g
         global _node_masking_g, _with_self_loops_g
-
+        global entropy_coefficient ,entropy_dict ,edges_haven_deleted
+        global degree_delete_edge_dict
         _G_g = self.G
 
         _label_matrix_g = self.label_matrix_g
@@ -346,7 +358,10 @@ class TopoInf:
 
         _node_masking_g = self.node_masking
         _with_self_loops_g = self.with_self_loops
-
+        entropy_coefficient = self.entropy_coefficient
+        entropy_dict = self.entropy_dict
+        edges_haven_deleted = self.edges_haven_deleted
+        degree_delete_edge_dict = self.degree_delete_edge_dict
     def _to_device(self, device: torch.device = torch.device('cpu')):
         self.label_matrix_g = self.label_matrix_g.to(device)
         self.norm_adj_g = self.norm_adj_g.to(device)
@@ -398,7 +413,62 @@ class TopoInf:
             return G_networkx, edge_index
         else:
             return edge_index
+    
+    def visualize_edge_ego_subgraph(self, analysis_edge):
+        analysis_topoinf = self._topoinf_e(analysis_edge)
+        subgraph_nodes = k_neighbors(self.G, analysis_edge, cutoff=self.k_order-1)
+        subgraph = self.G.subgraph(subgraph_nodes)
 
+        v_i, v_j = analysis_edge
+        has_edge = self.G.has_edge(v_i, v_j)
+        if not has_edge:
+            subgraph = nx.Graph(subgraph)   # NOTE: this is used to unfreeze the graph!
+            subgraph.add_edge(v_i, v_j)
+
+        node_dist_to_color = {
+            0: "tab:purple",
+            1: "tab:red",
+            2: "tab:orange",
+            3: "tab:olive",
+            4: "tab:green",
+            5: "tab:blue",
+            6: "violet",
+            7: "limegreen",
+            8: "darkorange",
+            9: "gold",
+        }
+        _node_colors = [node_dist_to_color[c] for _, c in subgraph.nodes(data="y")]
+
+        _pos = nx.spring_layout(subgraph)
+        plt.figure(figsize=(8, 8))
+
+        edgelist_except_analysis = subgraph.edges - [(v_i, v_j), (v_j, v_i)]
+        nx.draw_networkx_edges(subgraph, _pos, edgelist=edgelist_except_analysis, width=2, alpha=0.7, edge_color="k")
+        if has_edge:    # solid line if edge in G
+            nx.draw_networkx_edges(subgraph, _pos, edgelist=[analysis_edge], style='solid', width=2, alpha=0.7, edge_color="b")
+        else:    # dashed line if edge in G
+            nx.draw_networkx_edges(subgraph, _pos, edgelist=[analysis_edge], style='dashed', width=2, alpha=0.7, edge_color="r")
+        nx.draw_networkx_nodes(subgraph, _pos, node_color=_node_colors)
+        nx.draw_networkx_labels(subgraph, _pos, font_size=8)
+        plt.axis("off")
+        plt.title(f"{self.k_order-1}-Subgraph of Edge ${analysis_edge}$\nTopoInf = {analysis_topoinf:.2f}")
+        plt.show()
+    
+    def visualize_topoinf_distribution(self):
+        topoinf_all_e_tensor = torch.tensor(list(self.computed_topoinf.values()))
+        n, bins, patches = plt.hist(topoinf_all_e_tensor, 50, density=False, facecolor='C0', alpha=0.75)
+        plt.title(f"Distribution of TopoInf")
+        plt.show()
+
+    def get_edges_within_range(self, low, high=None, eps=1e-6):
+        high = low + eps if high == None else high
+        edges_within_range = []
+        for key, value in self.computed_topoinf.items():
+            if value >= low and value <= high:
+                edges_within_range.append(key)
+
+        return edges_within_range
+    
     def _topoinf_e(self, edge):
         """
         Compute TopoInf for edge = (v_i, v_j)
@@ -465,65 +535,15 @@ class TopoInf:
             
         bias_e_v = torch.sum(bias_sub_g).item()
         denoise_e_v = torch.sum(denoise_sub_g).item()
-
         topoinf_e_v = bias_e_v - self.lambda_reg * denoise_e_v
-        
+        print("topoinf 的值是",topoinf_e_v)
+        if v_i in self.entropy_dict:
+            topoinf_e_v += self.entropy_dict[v_i] * self.entropy_coefficient
+        if v_j in self.entropy_dict:
+            topoinf_e_v += self.entropy_dict[v_j] * self.entropy_coefficient
+        topoinf_e_v -= (math.log(1 + self.degree_delete_edge_dict[v_i],100) + math.log(1 + self.degree_delete_edge_dict[v_j] ,100 ))* 5 *self.entropy_coefficient
+        print("topoinf处理后",topoinf_e_v)
         return topoinf_e_v, bias_e_v, denoise_e_v
-    
-    def visualize_edge_ego_subgraph(self, analysis_edge):
-        analysis_topoinf = self._topoinf_e(analysis_edge)
-        subgraph_nodes = k_neighbors(self.G, analysis_edge, cutoff=self.k_order-1)
-        subgraph = self.G.subgraph(subgraph_nodes)
-
-        v_i, v_j = analysis_edge
-        has_edge = self.G.has_edge(v_i, v_j)
-        if not has_edge:
-            subgraph = nx.Graph(subgraph)   # NOTE: this is used to unfreeze the graph!
-            subgraph.add_edge(v_i, v_j)
-
-        node_dist_to_color = {
-            0: "tab:purple",
-            1: "tab:red",
-            2: "tab:orange",
-            3: "tab:olive",
-            4: "tab:green",
-            5: "tab:blue",
-            6: "violet",
-            7: "limegreen",
-            8: "darkorange",
-            9: "gold",
-        }
-        _node_colors = [node_dist_to_color[c] for _, c in subgraph.nodes(data="y")]
-
-        _pos = nx.spring_layout(subgraph)
-        plt.figure(figsize=(8, 8))
-
-        edgelist_except_analysis = subgraph.edges - [(v_i, v_j), (v_j, v_i)]
-        nx.draw_networkx_edges(subgraph, _pos, edgelist=edgelist_except_analysis, width=2, alpha=0.7, edge_color="k")
-        if has_edge:    # solid line if edge in G
-            nx.draw_networkx_edges(subgraph, _pos, edgelist=[analysis_edge], style='solid', width=2, alpha=0.7, edge_color="b")
-        else:    # dashed line if edge in G
-            nx.draw_networkx_edges(subgraph, _pos, edgelist=[analysis_edge], style='dashed', width=2, alpha=0.7, edge_color="r")
-        nx.draw_networkx_nodes(subgraph, _pos, node_color=_node_colors)
-        nx.draw_networkx_labels(subgraph, _pos, font_size=8)
-        plt.axis("off")
-        plt.title(f"{self.k_order-1}-Subgraph of Edge ${analysis_edge}$\nTopoInf = {analysis_topoinf:.2f}")
-        plt.show()
-    
-    def visualize_topoinf_distribution(self):
-        topoinf_all_e_tensor = torch.tensor(list(self.computed_topoinf.values()))
-        n, bins, patches = plt.hist(topoinf_all_e_tensor, 50, density=False, facecolor='C0', alpha=0.75)
-        plt.title(f"Distribution of TopoInf")
-        plt.show()
-
-    def get_edges_within_range(self, low, high=None, eps=1e-6):
-        high = low + eps if high == None else high
-        edges_within_range = []
-        for key, value in self.computed_topoinf.items():
-            if value >= low and value <= high:
-                edges_within_range.append(key)
-
-        return edges_within_range
     
     def get_graph_wise_topoinf_info(self):
         if self.node_masking is not None:
@@ -626,14 +646,13 @@ class TopoInf:
         #print("update了哪些边",print(edge_list))
         if len(delete_list) < 1 : return topoinf_all
         topoinf_all_e = copy.deepcopy(topoinf_all)
-        topoinf_detail_all_e = _compute_topoinf_edge_list(edge_list = edge_list, _proc = _proc, verbose = verbose)
+        topoinf_detail_all_e = _compute_topoinf_edge_list(edge_list = edge_list, _proc = _proc, verbose = verbose )
         self.computed_topoinf_detailed.update(topoinf_detail_all_e)
 
         for edge in edge_list  : 
             topoinf_all_e[edge] = topoinf_detail_all_e[edge][0]
         
         return topoinf_all_e
-        
     
     def _compute_topoinf_edges_mp(self, edge_list: list = None, _proc: int = int(mp.cpu_count()/2), 
                                   verbose: bool = False):

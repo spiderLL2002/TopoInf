@@ -131,16 +131,7 @@ if __name__ == '__main__':
                         'test_acc_mean': analysed_result['test_acc_mean']
                     }
 
-                    # 如果文件不存在，写入表头；如果文件存在，直接追加数据
-                    header = ['ratio', 'test_acc_mean']
-
-                    # 使用 'a' 模式追加数据到 CSV 文件
-                    with open(model_file, mode='a', newline='') as csv_file:
-                        writer = csv.writer(csv_file)
-                        # 如果文件为空，写入表头
-                        if os.path.getsize(model_file) == 0:  # 文件为空
-                            writer.writerow(header)
-                        writer.writerow([result_data['ratio'], result_data['test_acc_mean']])
+                    
                         
         # save recording when finished one model
         save_recording(recording = recording_dict[model_name], 

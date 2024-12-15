@@ -66,6 +66,8 @@ def compute_pseudo_label_topoinf(topoinf_calculator, pseudo_label_matrix, args):
                                         node_masking = None)
 
     start_time = time.time()
+    topoinf_calculator._pre_processing()
+    topoinf_calculator._set_global()
     topoinf_all_e = topoinf_calculator._compute_topoinf_edges_mp(_proc=args.mp_core, verbose=True)
     end_time = time.time()
     print(f"Computation Time for All [{len(topoinf_calculator.G.edges)}] Edges on [{args.dataset.upper()}]: {end_time-start_time:.2f} Seconds.")
