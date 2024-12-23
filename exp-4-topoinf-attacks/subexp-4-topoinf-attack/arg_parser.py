@@ -14,7 +14,7 @@ def add_argument_base(parser):
                         default='cora')
     parser.add_argument('--model', type=str, choices=['GCN', 'SGC', 'APPNP', 'GPRGNN', 'BERNNET'], 
                         default='GCN')
-    parser.add_argument('--device', type=int, default=6, help='GPU device (<0 for CPU).')
+    parser.add_argument('--device', type=int, default=0, help='GPU device (<0 for CPU).')
     parser.add_argument('--n-runs', type=int, default=10, help='number of runs.')
     ### Splitting Setting ###
     parser.add_argument('--split-mode', type=str, choices=['ratio', 'number'], 
@@ -45,7 +45,7 @@ def add_argument_base(parser):
     ### Training Parameters ###
     parser.add_argument('--n-epochs', type=int, default=200, help='number of epochs.')
     parser.add_argument('--eval-interval', type=int, default=1, help='number of epochs.')
-    parser.add_argument('--print-interval', type=int, default=50, help='number of epochs.')
+    parser.add_argument('--print-interval', type=int, default=10, help='number of epochs.')
     parser.add_argument('--early_stopping', type=int, default=100, help='early stopping epochs.')
     parser.add_argument('--early_stopping_tolerance', type=int, default=1, help='early stopping tolerance in percentage.')
 
@@ -70,7 +70,7 @@ def add_argument_base(parser):
     parser.add_argument('--pseudo-label-temperature', type=float, 
                         default=0.1, help='temperature to divide on model output logits before softmax.')
     ### TopoInf Setting ###
-    ## Deleting Setting ##
+    ## Deleting Setting ## 
     parser.add_argument('--delete-unit', type=str, choices=['mode_ratio', 'number', 'ratio'], 
                         default='number', help=r'two common deleting unit, i.e., ratio-based deleting and number-based deleting.'
                                                 r'mode ratio means choosing ratio of edges in the specified mode, ratio means choosing ratio of edges in all edges.'
@@ -79,8 +79,9 @@ def add_argument_base(parser):
                         default='pos', help=r'two common deleting mode, i.e., deleting positive edges and deleting negative edges.')
     # parser.add_argument('--delete-rate', type=float, default=0.1, help='deleting rate.')
     parser.add_argument('--delete-rate-list', nargs='*', type=float, 
-                        default=[0.0] + [0.1]*13, 
+                        default = [0.01]*8, 
                         help='deleting rate list.')
+    
     # parser.add_argument('--delete-num', type=int, default=400, help='deleting number.')
     parser.add_argument('--delete-num-list', nargs='*', type=int, 
                         default=[100]*6, 

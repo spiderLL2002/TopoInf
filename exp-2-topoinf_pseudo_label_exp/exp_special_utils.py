@@ -17,7 +17,7 @@ sys.path.append(os.path.dirname(UPPER_DIR))
 from base_utils.base_general_utils import fix_seed
 from base_utils.base_training_utils import train, eval, print_eval_result, get_optimizer
 from topoinf_impl import TopoInf
-
+ 
 def RunExp(data, model, args, criterion, run_index=0, seed=2023, 
             save_file_suffix="before_topoinf",
             return_model=False):
@@ -97,6 +97,37 @@ def RunExp(data, model, args, criterion, run_index=0, seed=2023,
 def update_edge_index(G_data: Union[torch_geometric.data.Data, nx.graph.Graph], delete_edges: Union[list, tuple]):
     """Cut edges according to delete_edges.
     """
+    
+    if isinstance(G_data, nx.graph.Graph):
+        _device = 'cpu'
+        existing_edges = set(G_data.edges)
+        for edge in delete_edges:
+            if edge in existing_edges:
+                G_data.remove_edge(*edge)
+            else:
+                G_data.add_edge(*edge)
+        edge_index = torch.tensor(np.array(G_data.to_directed().edges).T).to(_device)
+        # NOTE: remember to turn Graph into directed and move edge_index to _device.
+        return edge_index
+    elif isinstance(G_data, torch_geometric.data.Data):
+        
+        edge_index = G_data.edge_index  
+        
+        delete_edges_set = set(delete_edges)
+        edges = edge_index.t().tolist()  
+        edge_set = set(tuple(edge) for edge in edges)
+        
+        edge_set ^= delete_edges_set
+        
+        edge_index = torch.tensor(list(edge_set)).t()
+        
+        return edge_index
+    else:
+        raise NotImplementedError
+    
+def update_edge_index_origin(G_data: Union[torch_geometric.data.Data, nx.graph.Graph], delete_edges: Union[list, tuple]):
+    """Cut edges according to delete_edges.
+    """
     if isinstance(G_data, nx.graph.Graph):
         G_networkx = G_data.copy()
         _device = 'cpu'
@@ -111,7 +142,7 @@ def update_edge_index(G_data: Union[torch_geometric.data.Data, nx.graph.Graph], 
     edge_index = torch.tensor(np.array(G_networkx.to_directed().edges).T).to(_device)
     # NOTE: remember to turn Graph into directed and move edge_index to _device.
 
-    return G_networkx, edge_index
+    return edge_index
 
 def get_edges_nums(topoinf_all_e_dict, args)  : 
     topoinf_all_e_tensor = torch.tensor(list(topoinf_all_e_dict.values()))
@@ -123,7 +154,8 @@ def get_delete_edges_wrapper(edges_haven_deleted ,topoinf_all_e, args):
     ### Get Deleting Edges ###
     topoinf_all_e_sorted = sorted(topoinf_all_e.items(), key=lambda item: item[1], reverse=True)
     
-    delete_num = args.delete_step_length
+    
+    delete_num = args.delete_num
     
     if args.delete_mode == 'pos':
         delete_edges = [edge for edge, _ in topoinf_all_e_sorted[:delete_num]]
@@ -161,18 +193,12 @@ def update_topoinf(edges_haven_deleted ,data,topoinf_all_e,delete_edges,args ,co
     return topoinf_calculator.update_topoinf_edges_mp(delete_edges,verbose = False , topoinf_all = now_topoinf_all_e)
 
 def topoinf_based_deleting_edges(edges_haven_deleted,data,topoinf_all_e , args,coefficients = None):
-    delete_num = args.delete_num
-    k = args.delete_step_length
-    ep = delete_num // k
-    now_topoinf_all_e = copy.deepcopy(topoinf_all_e ) 
-    for _ in range(ep) : 
-        #print(data ,type(data) ,len(data))
-        delete_edges = []
-        x = 0 
-        while len(delete_edges) < args.delete_step_length and x < 3 :
-            x += 1 
-            delete_edges = get_delete_edges_wrapper(edges_haven_deleted,now_topoinf_all_e, args)
-        update_edge_index(data, delete_edges)
-        now_topoinf_all_e = update_topoinf(edges_haven_deleted ,data,now_topoinf_all_e,delete_edges,args,coefficients)
-        print(len(edges_haven_deleted))
-    return now_topoinf_all_e ,data
+    
+    delete_edges = get_delete_edges_wrapper(edges_haven_deleted,topoinf_all_e, args)
+    data.edge_index = update_edge_index_origin(data, delete_edges) #origin为原先代码
+   
+    
+    #now_topoinf_all_e = update_topoinf(edges_haven_deleted ,data,now_topoinf_all_e,delete_edges,args,coefficients)
+    print("目前总共删除了",len(edges_haven_deleted)//2 ,"条边")
+    print("本次删除",len(delete_edges),"条边")
+    return data

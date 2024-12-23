@@ -8,21 +8,22 @@ import copy
 from typing import Union
 import warnings
 warnings.filterwarnings('ignore')
-
+from collections import deque
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
-
+from collections import defaultdict
 import torch
 import torch.nn.functional as F
-
+            
+import math
 import torch_geometric
 from torch_geometric.utils import spmm
 from torch_geometric.utils import one_hot, remove_self_loops
 from torch_geometric.utils.convert import to_networkx
 
 from torch_sparse import SparseTensor
-
+ 
 import torch.multiprocessing as mp
 import os
 os.environ["OMP_NUM_THREADS"] = "1"
@@ -107,6 +108,7 @@ def get_row_square_sum(norm_adj_matrix: SparseTensor):
 
     return row_square_sum
 
+
 def sparse_sub(left_m: SparseTensor, right_m: SparseTensor):
     left_m = left_m.to_torch_sparse_coo_tensor()
     right_m = right_m.to_torch_sparse_coo_tensor()
@@ -119,7 +121,7 @@ def designed_sparse_mul(org_m: SparseTensor, delta_m: SparseTensor):
     '''
     new_m = org_m + delta_m
     ===>
-    new_m^2 = org_m^2 + (org_m*delta_m + org_m^2)
+    new_m^2 = org_m^2 + (2*org_m*delta_m + org_m^2)
     '''
     org_m = org_m.to_torch_sparse_coo_tensor()
     delta_m = delta_m.to_torch_sparse_coo_tensor()
@@ -146,7 +148,8 @@ def k_neighbors(G, source, cutoff=0, merge=True):
     for k in range(1, cutoff+1):
         neighbors[k] = set()
         for node in neighbors[k-1]:     # use last level to speed up
-            neighbors[k].update(set(G.neighbors(node)))
+            if node in G:
+                neighbors[k].update(set(G.neighbors(node)))
     
     if merge:
         _neighbors = set()
@@ -157,7 +160,7 @@ def k_neighbors(G, source, cutoff=0, merge=True):
     return neighbors
 
 
-def _topoinf_single_edge(edge):
+def _topoinf_single_edge(edge ):
     """
     Compute TopoInf for edge = (v_i, v_j)
     """
@@ -180,7 +183,10 @@ def _topoinf_single_edge(edge):
     original_subgraph_filter = get_polynomial_graph_filter(norm_adj_original_sub_g, k_order=_k_order_g, coefficients=_coefficients_g)
 
     if has_edge:    # edge in G
-        edge_value = - norm_adj_original_sub_g[0, 1].coo()[2].cpu().expand(2)   # NOTE: use `.cpu()` in case `norm_adj_original_sub_g` on GPU
+        if norm_adj_original_sub_g[0, 1].numel() > 0:  
+            edge_value = - norm_adj_original_sub_g[0, 1].coo()[2].cpu().expand(2)
+        else:
+            edge_value = None  
         matrix_E_ij_neg = SparseTensor(row=torch.tensor([0, 1]), col=torch.tensor([1, 0]), value=edge_value,
                                 sparse_sizes=norm_adj_original_sub_g.sparse_sizes())
         matrix_E_ij_neg = matrix_E_ij_neg.to(norm_adj_original_sub_g.device())  # NOTE: keep device the same
@@ -225,11 +231,19 @@ def _topoinf_single_edge(edge):
     denoise_e_v = torch.sum(denoise_sub_g).item()
 
     topoinf_e_v = bias_e_v - _lambda_reg_g * denoise_e_v
-
+    #C(A) = T(A) - lambda * Ra(Vi) , now is delta C(A)
+    #print("topoinf 处理前:" , topoinf_e_v)
+    if v_i in entropy_dict:
+        topoinf_e_v += entropy_dict[v_i] * entropy_coefficient
+    if v_j in entropy_dict:
+        topoinf_e_v += entropy_dict[v_j] * entropy_coefficient
+    #print("topoinf 考虑entropy后:" , topoinf_e_v)
+    topoinf_e_v -= (math.log(1 + degree_delete_edge_dict[v_i],100) + math.log(1 + degree_delete_edge_dict[v_j] ,100 ))* 5 *entropy_coefficient
+    #print("topoinf 处理后:" , topoinf_e_v)
     return ((v_i, v_j), [topoinf_e_v, bias_e_v, denoise_e_v])
 
 
-def _compute_topoinf_edge_list(edge_list = None, _proc = int(mp.cpu_count()/2), verbose = False):
+def _compute_topoinf_edge_list(edge_list = None, _proc = int(mp.cpu_count()/2), verbose = False,entropy_dict = {}, entropy_coefficient = 0.02):
     
     num_tasks = len(edge_list)
     chunksize, extra = divmod(num_tasks, _proc * 4)
@@ -238,7 +252,7 @@ def _compute_topoinf_edge_list(edge_list = None, _proc = int(mp.cpu_count()/2), 
 
     org_num_threads = torch.get_num_threads()
     torch.set_num_threads(1)        # NOTE: avoid multiprocessing hanging bug!
-
+    if chunksize <1 : return {}
     pool = mp.Pool(processes=_proc)
     # topoinf_all_e_list = pool.map(_topoinf_single_edge, edge_list, chunksize=chunksize)
     topoinf_all_e_list = pool.imap_unordered(_topoinf_single_edge, edge_list, chunksize=chunksize)
@@ -264,7 +278,11 @@ class TopoInf:
                     with_self_loops: bool = True,
                     k_order: int = 3, coefficients: list = None,
                     distance_metric_name: str = 'inner_product',
-                 ):
+                    edges_haven_deleted : set = (),
+                    entropy_dict: dict = {},
+                    entropy_coefficient :float = 0.02,
+                    degree_delete_edge_dict = None,
+                ):
         """Initialized a container to compute TopoInf.
         """
         self.data = copy.deepcopy(data).cpu()
@@ -273,7 +291,6 @@ class TopoInf:
         
         # turn pgy to networkx
         self.G = to_networkx(self.data, node_attrs=['y'], to_undirected=True, remove_self_loops=True)
-        
         self.k_order = k_order
         if coefficients is None or len(coefficients) < k_order:
             coefficients = [1/k_order] * k_order
@@ -288,7 +305,14 @@ class TopoInf:
         self.eps = 1e-6
         self.computed_topoinf = {}
         self.computed_topoinf_detailed = {}
-    
+        self.edges_haven_deleted = edges_haven_deleted
+        self.entropy_dict = entropy_dict 
+        self.entropy_coefficient = entropy_coefficient
+        if degree_delete_edge_dict == None :
+            self.degree_delete_edge_dict = defaultdict(int)
+        else:    
+            self.degree_delete_edge_dict = degree_delete_edge_dict
+        
     def _pre_processing(self, label_matrix_g: torch.Tensor = None, node_masking: Union[set, list, tuple] = None):
         if (label_matrix_g == None) or (not isinstance(label_matrix_g, torch.Tensor)):
             self.label_matrix_g = one_hot(self.data.y, dtype=torch.float32)
@@ -317,7 +341,6 @@ class TopoInf:
 
         self.node_wise_topoinf = self.bias_g - self.lambda_reg * self.denoise_g
 
-
     def _set_global(self):
         global _G_g
         global _label_matrix_g, _norm_adj_g, _filtered_label_matrix_g
@@ -325,7 +348,8 @@ class TopoInf:
         global _bias_g, _denoise_g, _lambda_reg_g
         global _k_order_g, _coefficients_g, _distance_metric_function_g
         global _node_masking_g, _with_self_loops_g
-
+        global entropy_coefficient ,entropy_dict ,edges_haven_deleted
+        global degree_delete_edge_dict
         _G_g = self.G
 
         _label_matrix_g = self.label_matrix_g
@@ -346,7 +370,10 @@ class TopoInf:
 
         _node_masking_g = self.node_masking
         _with_self_loops_g = self.with_self_loops
-
+        entropy_coefficient = self.entropy_coefficient
+        entropy_dict = self.entropy_dict
+        edges_haven_deleted = self.edges_haven_deleted
+        degree_delete_edge_dict = self.degree_delete_edge_dict
     def _to_device(self, device: torch.device = torch.device('cpu')):
         self.label_matrix_g = self.label_matrix_g.to(device)
         self.norm_adj_g = self.norm_adj_g.to(device)
@@ -398,71 +425,6 @@ class TopoInf:
             return G_networkx, edge_index
         else:
             return edge_index
-
-    def _topoinf_e(self, edge):
-        """
-        Compute TopoInf for edge = (v_i, v_j)
-        """
-        (v_i, v_j) = edge
-        has_edge = self.G.has_edge(v_i, v_j)    # NOTE: equivalent to `edge in self.G.edges`, but `has_edge` is faster
-
-        subgraph_nodes = k_neighbors(self.G, (v_i, v_j), self.k_order-1)
-        subgraph_nodes = get_sorted_subgraph_nodes(subgraph_nodes, v_i, v_j, is_sort=True)
-
-        norm_adj_original_sub_g = self.norm_adj_g[subgraph_nodes, subgraph_nodes]
-        # norm_adj_original_sub_g = norm_adj_original_sub_g.to_dense()    # NOTE: turn into a dense matrix, which sacrifices computation complexity
-
-        original_subgraph_filter = get_polynomial_graph_filter(norm_adj_original_sub_g, k_order=self.k_order, coefficients=self.coefficients)
-        
-        # NOTE: sparse version
-        if has_edge:    # edge in G
-            edge_value = - norm_adj_original_sub_g[0, 1].coo()[2].cpu().expand(2)   # NOTE: use `.cpu()` in case `norm_adj_original_sub_g` on GPU
-            matrix_E_ij_neg = SparseTensor(row=torch.tensor([0, 1]), col=torch.tensor([1, 0]), value=edge_value,
-                                    sparse_sizes=norm_adj_original_sub_g.sparse_sizes())
-            matrix_E_ij_neg = matrix_E_ij_neg.to(norm_adj_original_sub_g.device())  # NOTE: keep device the same
-            norm_adj_disturbed_sub_g = matrix_E_ij_neg + norm_adj_original_sub_g    # NOTE: norm_adj_disturbed_sub_g.nnz == norm_adj_original_sub_g.nnz!
-        else:           # edge not in G
-            edge_value = (self.G.degree(v_i) + self.with_self_loops) * (self.G.degree(v_j) + self.with_self_loops)
-            edge_value = edge_value + bool(edge_value == 0)  # NOTE: in case `edge_value == 0`
-            edge_value = torch.tensor([edge_value]).pow(-0.5).expand(2)
-            matrix_E_ij_pos = SparseTensor(row=torch.tensor([0, 1]), col=torch.tensor([1, 0]), value=edge_value,
-                                    sparse_sizes=norm_adj_original_sub_g.sparse_sizes())
-            matrix_E_ij_pos = matrix_E_ij_neg.to(norm_adj_original_sub_g.device())  # NOTE: keep device the same
-            norm_adj_disturbed_sub_g = matrix_E_ij_pos + norm_adj_original_sub_g
-        
-        disturbed_subgraph_filter = get_polynomial_graph_filter(norm_adj_disturbed_sub_g, k_order=self.k_order, coefficients=self.coefficients)
-        delta_subgraph_filter = sparse_sub(disturbed_subgraph_filter, original_subgraph_filter)
-
-        disturbed_subgraph_filter_row_sum = delta_subgraph_filter.sum(dim=1) + self.graph_filter_row_sum[subgraph_nodes]
-        disturbed_subgraph_filter_row_square_sum = designed_sparse_mul(org_m = self.graph_filter_sparse_g[subgraph_nodes, subgraph_nodes],
-                            delta_m = delta_subgraph_filter
-                            ) + self.graph_filter_row_square_sum[subgraph_nodes]
-
-        label_matrix_sub_g = self.label_matrix_g[subgraph_nodes]
-
-        delta_filtered_label_matrix_sub_g = spmm(delta_subgraph_filter, label_matrix_sub_g)
-        original_filtered_label_matrix_sub_g = self.filtered_label_matrix_g[subgraph_nodes]
-        filtered_label_matrix_sub_g = original_filtered_label_matrix_sub_g + delta_filtered_label_matrix_sub_g
-        # normalized_filtered_label_matrix_sub_g = self.normalize(filtered_label_matrix_sub_g)  # NOTE: row_sum has already been calculated
-        normalized_filtered_label_matrix_sub_g = filtered_label_matrix_sub_g / disturbed_subgraph_filter_row_sum.reshape(-1, 1)
-        
-        bias_sub_g = self.distance_metric_function(normalized_filtered_label_matrix_sub_g, label_matrix_sub_g) \
-            - self.bias_g[subgraph_nodes]
-        denoise_sub_g = disturbed_subgraph_filter_row_square_sum.sqrt() / disturbed_subgraph_filter_row_sum \
-            - self.denoise_g[subgraph_nodes]
-
-        if self.node_masking is not None:
-            subgraph_node_masking = [True if subg_node in self.node_masking else False for subg_node in subgraph_nodes]
-            # NOTE: this means nodes in `node_masking` will be calculated in TopoInf! Do not get the opposite understanding.
-            bias_sub_g = bias_sub_g[subgraph_node_masking]
-            denoise_sub_g = denoise_sub_g[subgraph_node_masking]
-            
-        bias_e_v = torch.sum(bias_sub_g).item()
-        denoise_e_v = torch.sum(denoise_sub_g).item()
-
-        topoinf_e_v = bias_e_v - self.lambda_reg * denoise_e_v
-        
-        return topoinf_e_v, bias_e_v, denoise_e_v
     
     def visualize_edge_ego_subgraph(self, analysis_edge):
         analysis_topoinf = self._topoinf_e(analysis_edge)
@@ -519,6 +481,82 @@ class TopoInf:
 
         return edges_within_range
     
+    def _topoinf_e(self, edge):
+        """
+        Compute TopoInf for edge = (v_i, v_j)
+        """
+        (v_i, v_j) = edge
+        has_edge = self.G.has_edge(v_i, v_j)    # NOTE: equivalent to `edge in self.G.edges`, but `has_edge` is faster
+    
+        subgraph_nodes = k_neighbors(self.G, (v_i, v_j), self.k_order-1)
+        subgraph_nodes = get_sorted_subgraph_nodes(subgraph_nodes, v_i, v_j, is_sort=True)
+
+        norm_adj_original_sub_g = self.norm_adj_g[subgraph_nodes, subgraph_nodes]
+        # norm_adj_original_sub_g = norm_adj_original_sub_g.to_dense()    # NOTE: turn into a dense matrix, which sacrifices computation complexity
+
+        original_subgraph_filter = get_polynomial_graph_filter(norm_adj_original_sub_g, k_order=self.k_order, coefficients=self.coefficients)
+        
+        # NOTE: sparse version
+        if has_edge:    # edge in G
+            
+            coo_values = norm_adj_original_sub_g[0, 1].coo()[2]
+            if coo_values.numel() > 0:  
+                edge_value = - coo_values.cpu().expand(2)
+            else:
+                edge_value = torch.tensor([0, 0], dtype=torch.float32)
+                
+            matrix_E_ij_neg = SparseTensor(row=torch.tensor([0, 1]), col=torch.tensor([1, 0]), value=edge_value,
+                                    sparse_sizes=norm_adj_original_sub_g.sparse_sizes())
+            matrix_E_ij_neg = matrix_E_ij_neg.to(norm_adj_original_sub_g.device())  # NOTE: keep device the same
+            norm_adj_disturbed_sub_g = matrix_E_ij_neg + norm_adj_original_sub_g    # NOTE: norm_adj_disturbed_sub_g.nnz == norm_adj_original_sub_g.nnz!
+        else:           # edge not in G
+            edge_value = (self.G.degree(v_i) + self.with_self_loops) * (self.G.degree(v_j) + self.with_self_loops)
+            edge_value = edge_value + bool(edge_value == 0)  # NOTE: in case `edge_value == 0`
+            edge_value = torch.tensor([edge_value]).pow(-0.5).expand(2)
+            matrix_E_ij_pos = SparseTensor(row=torch.tensor([0, 1]), col=torch.tensor([1, 0]), value=edge_value,
+                                    sparse_sizes=norm_adj_original_sub_g.sparse_sizes())
+            matrix_E_ij_pos = matrix_E_ij_pos.to(norm_adj_original_sub_g.device())   # NOTE: keep device the same
+            norm_adj_disturbed_sub_g = matrix_E_ij_pos + norm_adj_original_sub_g
+        
+        disturbed_subgraph_filter = get_polynomial_graph_filter(norm_adj_disturbed_sub_g, k_order=self.k_order, coefficients=self.coefficients)
+        delta_subgraph_filter = sparse_sub(disturbed_subgraph_filter, original_subgraph_filter)
+
+        disturbed_subgraph_filter_row_sum = delta_subgraph_filter.sum(dim=1) + self.graph_filter_row_sum[subgraph_nodes]
+        disturbed_subgraph_filter_row_square_sum = designed_sparse_mul(org_m = self.graph_filter_sparse_g[subgraph_nodes, subgraph_nodes],
+                            delta_m = delta_subgraph_filter
+                            ) + self.graph_filter_row_square_sum[subgraph_nodes]
+
+        label_matrix_sub_g = self.label_matrix_g[subgraph_nodes]
+
+        delta_filtered_label_matrix_sub_g = spmm(delta_subgraph_filter, label_matrix_sub_g)
+        original_filtered_label_matrix_sub_g = self.filtered_label_matrix_g[subgraph_nodes]
+        filtered_label_matrix_sub_g = original_filtered_label_matrix_sub_g + delta_filtered_label_matrix_sub_g
+        # normalized_filtered_label_matrix_sub_g = self.normalize(filtered_label_matrix_sub_g)  # NOTE: row_sum has already been calculated
+        normalized_filtered_label_matrix_sub_g = filtered_label_matrix_sub_g / disturbed_subgraph_filter_row_sum.reshape(-1, 1)
+        
+        bias_sub_g = self.distance_metric_function(normalized_filtered_label_matrix_sub_g, label_matrix_sub_g) \
+            - self.bias_g[subgraph_nodes]
+        denoise_sub_g = disturbed_subgraph_filter_row_square_sum.sqrt() / disturbed_subgraph_filter_row_sum \
+            - self.denoise_g[subgraph_nodes]
+
+        if self.node_masking is not None:
+            subgraph_node_masking = [True if subg_node in self.node_masking else False for subg_node in subgraph_nodes]
+            # NOTE: this means nodes in `node_masking` will be calculated in TopoInf! Do not get the opposite understanding.
+            bias_sub_g = bias_sub_g[subgraph_node_masking]
+            denoise_sub_g = denoise_sub_g[subgraph_node_masking]
+            
+        bias_e_v = torch.sum(bias_sub_g).item()
+        denoise_e_v = torch.sum(denoise_sub_g).item()
+        topoinf_e_v = bias_e_v - self.lambda_reg * denoise_e_v
+        #print("topoinf ",topoinf_e_v)
+        if v_i in self.entropy_dict:
+            topoinf_e_v += self.entropy_dict[v_i] * self.entropy_coefficient
+        if v_j in self.entropy_dict:
+            topoinf_e_v += self.entropy_dict[v_j] * self.entropy_coefficient
+        topoinf_e_v -= (math.log(1 + self.degree_delete_edge_dict[v_i],100) + math.log(1 + self.degree_delete_edge_dict[v_j] ,100 ))* 5 *self.entropy_coefficient
+        #print("topoinf处理后",topoinf_e_v)
+        return topoinf_e_v, bias_e_v, denoise_e_v
+    
     def get_graph_wise_topoinf_info(self):
         if self.node_masking is not None:
             node_masking_indices = torch.tensor(list(self.node_masking))
@@ -534,6 +572,29 @@ class TopoInf:
 
         return info
 
+    def neighbors_of_delete_edges(self, delete_edges: list = None) : 
+        neighbors_edge = set()
+        haven_edges = set(self.edges_haven_deleted)
+        haven_point = set()
+        q = deque() 
+        for (i,j) in delete_edges  :
+            haven_edges.add((i,j))
+            haven_edges.add((j,i))
+            q.append(i)
+            q.append(j)
+        while q : 
+            now_node = q.popleft() 
+            if now_node not in haven_point and now_node in self.G  :
+                haven_point.add(now_node)
+                for neighbor in self.G.neighbors(now_node):
+                    if (now_node,neighbor) not in haven_edges : 
+                        neighbors_edge.add((now_node,neighbor))
+                        haven_edges.add((now_node,neighbor))
+                        haven_edges.add((neighbor,now_node))
+                        if now_node not in haven_point :
+                            q.append(neighbor)
+        return list(neighbors_edge)
+        
     def _compute_topoinf_edges(self, edge_list: list = None, verbose: bool = False):
         """Compute TopoInf for edges in given edge lists.
         Parameters
@@ -562,6 +623,46 @@ class TopoInf:
 
         self.computed_topoinf.update(topoinf_all_e)
         self.computed_topoinf_detailed.update(topoinf_detail_all_e)
+        
+        return topoinf_all_e
+    
+    def update_topoinf_edges(self, delete_list: list = None, verbose: bool = False  ,topoinf_all = None ):
+        if (delete_list == None) or (not isinstance(delete_list, (tuple, list))):
+            delete_list = self.G.edges()  # list(self.G.edges())
+        edge_list = self.neighbors_of_delete_edges( delete_list)
+        #print("本次删除的边" , delete_list)
+        #print("需要update的边的数量", len(edge_list))
+        #print("update了哪些边",print(edge_list))
+        if verbose:
+            edge_list = tqdm(edge_list, desc=f'Computing TopoInf (SP): ')
+        topoinf_all_e = copy.deepcopy(topoinf_all)
+        topoinf_detail_all_e = {}
+        for edge in edge_list:
+            topoinf_e_v, bias_e_v, denoise_e_v = self._topoinf_e(edge=edge)
+            topoinf_all_e[edge] = topoinf_e_v
+            topoinf_detail_all_e[edge] = [topoinf_e_v, bias_e_v, denoise_e_v]
+
+        self.computed_topoinf.update(topoinf_all_e)
+        self.computed_topoinf_detailed.update(topoinf_detail_all_e)
+        
+        return topoinf_all_e
+    
+    def update_topoinf_edges_mp(self, delete_list: list = None, _proc: int = int(mp.cpu_count()/2), 
+                                  verbose: bool = False ,topoinf_all = None ):
+        if (delete_list == None) or (not isinstance(delete_list, (tuple, list))):
+            delete_list = self.G.edges()  # list(self.G.edges())
+            
+        edge_list = self.neighbors_of_delete_edges( delete_list)
+        #print("本次删除的边" , delete_list)
+        #print("需要update的边的数量", len(edge_list))
+        #print("update了哪些边",print(edge_list))
+        if len(delete_list) < 1 : return topoinf_all
+        topoinf_all_e = copy.deepcopy(topoinf_all)
+        topoinf_detail_all_e = _compute_topoinf_edge_list(edge_list = edge_list, _proc = _proc, verbose = verbose )
+        self.computed_topoinf_detailed.update(topoinf_detail_all_e)
+
+        for edge in edge_list  : 
+            topoinf_all_e[edge] = topoinf_detail_all_e[edge][0]
         
         return topoinf_all_e
     
@@ -598,11 +699,11 @@ if __name__ == '__main__':
     from torch_geometric.datasets import Planetoid
     import torch_geometric.transforms as T
 
-    # print(torch.__config__.parallel_info())
+    print(torch.__config__.parallel_info())
 
     dataset_name = 'cora'
-    root_path = '../'
-    path = osp.join(root_path, 'data', dataset_name)
+    root_path = './'
+    path = osp.join(root_path, 'data')
     dataset = Planetoid(path, dataset_name, transform=T.NormalizeFeatures())
 
     data = dataset[0]

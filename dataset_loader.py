@@ -75,7 +75,7 @@ def analyse_class_distribution(data):
 
 
 if __name__ == '__main__':
-    for d in [ "citeseer" ,"cora" ,"pubmed"]:
+    for d in [ "citeseer" ,"cora" ,"pubmed" ,'computers', 'photo', 'actor' ]:
         data = DataLoader(dataset_name = d,
                                 root_path = 'data/')
 

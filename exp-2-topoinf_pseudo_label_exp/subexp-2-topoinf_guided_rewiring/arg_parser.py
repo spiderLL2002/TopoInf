@@ -14,7 +14,7 @@ def add_argument_base(parser):
                         default='cora')
     parser.add_argument('--model', type=str, choices=['GCN', 'SGC', 'APPNP', 'GPRGNN', 'BERNNET'], 
                         default='GCN')
-    parser.add_argument('--device', type=int, default=6, help='GPU device (<0 for CPU).')
+    parser.add_argument('--device', type=int, default=1, help='GPU device (<0 for CPU).')
     parser.add_argument('--n-runs', type=int, default=10, help='number of runs.')
     ### Splitting Setting ###
     parser.add_argument('--split-mode', type=str, choices=['ratio', 'number'], 
@@ -45,7 +45,7 @@ def add_argument_base(parser):
     ### Training Parameters ###
     parser.add_argument('--n-epochs', type=int, default=200, help='number of epochs.')
     parser.add_argument('--eval-interval', type=int, default=1, help='number of epochs.')
-    parser.add_argument('--print-interval', type=int, default=50, help='number of epochs.')
+    parser.add_argument('--print-interval', type=int, default=10, help='number of epochs.')
     parser.add_argument('--early_stopping', type=int, default=100, help='early stopping epochs.')
     parser.add_argument('--early_stopping_tolerance', type=int, default=1, help='early stopping tolerance in percentage.')
 
@@ -78,9 +78,10 @@ def add_argument_base(parser):
     parser.add_argument('--delete-mode', type=str, choices=['pos', 'neg'], 
                         default='pos', help=r'two common deleting mode, i.e., deleting positive edges and deleting negative edges.')
     # parser.add_argument('--delete-rate', type=float, default=0.1, help='deleting rate.')
-    parser.add_argument('--delete-rate-list', nargs='*', type=float, 
-                        default=[0.0] + [0.1]*13, 
+    parser.add_argument('--delete-rate-list', nargs='*', type=int, 
+                        default= [2]*20, 
                         help='deleting rate list.')
+   
     # parser.add_argument('--delete-num', type=int, default=400, help='deleting number.')
     parser.add_argument('--delete-num-list', nargs='*', type=int, 
                         default=[100]*6, 
@@ -112,6 +113,11 @@ def add_argument_base(parser):
                         default=50, help='the length of delete iteration')
     parser.add_argument('--entropy-aware', type=bool, default=False, 
                         help='whether use entropy-aware')
+    
+    parser.add_argument('--point-num', type=int, 
+                        default=1000)
+    parser.add_argument('--edge-num', type=int, 
+                        default=10000)
     # After Computing
     
     # args = parser.parse_args()                    # NOTE: used when using command line

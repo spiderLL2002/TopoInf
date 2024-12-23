@@ -73,8 +73,9 @@ if __name__ == '__main__':
     
     recording_dict = copy.deepcopy(vars(args))
     
-    
+    pre_data = copy.deepcopy(data)
     for run_index in range(args.n_runs):
+        data = copy.deepcopy(pre_data)
         record_dict_per_run = {}
         seed = SEEDS[run_index]
         record_dict_per_run['seed'] = seed
@@ -158,41 +159,47 @@ if __name__ == '__main__':
                 degree_delete_edge_dict = degree_delete_edge_dict
                 
                 )
-
+                        
         topoinf_all_e = compute_pseudo_label_topoinf(topoinf_calculator, pseudo_label_matrix=pseudo_label_matrix.cpu(), args=args)
-        pos_num , neg_num = get_edges_nums(topoinf_all_e, args)   
+        pos_num , neg_num = get_edges_nums(topoinf_all_e)   
         edges_haven_deleted = set()
-        print(pos_num,neg_num)
-        now_data = copy.deepcopy(data )
+        #print("pos_num ,neg_num",pos_num,neg_num)
+        
         delete_mag_list = args.delete_rate_list if args.delete_unit in ['mode_ratio', 'ratio'] \
                                 else args.delete_num_list
-        for delete_mag in delete_mag_list:
+        real_delete_list = []
+        for i,delete_mag in enumerate(delete_mag_list):
+            
             if len(edges_haven_deleted) > pos_num +neg_num :
                 break
             if args.delete_unit in ['mode_ratio', 'ratio']:
                 args.delete_rate = delete_mag
-                args.delete_num = neg_num*delete_mag 
+                args.delete_num = (pos_num  + neg_num)*delete_mag 
             else:
                 args.delete_num = delete_mag
             args.delete_num = int(args.delete_num)
+            
             if args.save_detailed_perf or args.save_reduced_perf:
                 args.save_dir = get_save_dir(args)
-            key = f'delete__[{len(edges_haven_deleted) /(2*( pos_num + neg_num) )}]'
+           
+            key = f'delete_[{args.delete_unit}]_[{delete_mag*(i+1)}]'
             record_dict_per_run[key] = {}
             
-            ### Delete Edges ###
             
-            topoinf_all_e ,now_data = topoinf_based_deleting_edges\
-                (degree_delete_edge_dict,edges_haven_deleted ,now_data, topoinf_all_e, args ,coefficients,entropy_dict = entropy_dict,entropy_coefficient = args.entropy_coefficient)
+            ### Delete Edges ###
+            #print("delete_unit:" , args.delete_unit)
+            
+            topoinf_all_e ,data = topoinf_based_deleting_edges\
+                (degree_delete_edge_dict,edges_haven_deleted ,data, topoinf_all_e, args ,coefficients,entropy_dict = entropy_dict,entropy_coefficient = args.entropy_coefficient)
 
             ### Eval `best_model` on Topology with TopoInf deleting
-            eval_result_after_topoinf_before_retrain = eval(best_model, now_data, criterion=None, get_detail=False)
+            eval_result_after_topoinf_before_retrain = eval(best_model, data, criterion=None, get_detail=False)
             print_eval_result(eval_result_after_topoinf_before_retrain, prefix=f'[After TopoInf ({key}) but NOT Retrain]')
             record_dict_per_run[key]['before_retrain'] = eval_result_after_topoinf_before_retrain
 
             ### Rerun Model ###
             best_eval_result_after_topoinf_after_retrain = \
-                RunExp(now_data, model, args, criterion, 
+                RunExp(data, model, args, criterion, 
                     run_index=run_index, seed=seed,
                     save_file_suffix=f'after_{key}',
                     return_model=False)
@@ -201,5 +208,5 @@ if __name__ == '__main__':
         recording_dict[f'run_[{run_index+1}]'] = record_dict_per_run
 
 
-    analyse_and_save_recording(recording = recording_dict, 
+    analyse_and_save_recording( recording = recording_dict, 
                                args = args)
