@@ -1,6 +1,6 @@
 # TopoInf
 
-Experiment Code for Paper: ["Characterizing the Influence of Topology on Graph Learning Tasks"](https://arxiv.org/abs/2404.07493), which has been accepted by DASFAA as a long paper.
+Experiment Code for Paper: Characterizing the Influence of Topology on Graph Learning Tasks, which has been accepted by DASFAA as a long paper.
 
 ## Requirements
 - `torch >= 2.0.1`
