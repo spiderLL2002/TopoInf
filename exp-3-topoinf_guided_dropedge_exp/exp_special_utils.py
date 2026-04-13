@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 
 import time
-
+ 
 def get_edge_sample_prob(topoinf_all_e, data, 
                             temperature = 0.1, 
                             thr_v = None, 
