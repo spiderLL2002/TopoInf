@@ -142,21 +142,20 @@ if __name__ == '__main__':
         torch.set_printoptions(profile="full")
         #print("vertex_type_degree_ratio",vertex_type_degree_ratio)
         
-        '''add_vertex =  select_vertex(vertex_type_degree_ratio,degree_vertex,num_samples = args.point_num)
+        add_vertex =  select_vertex(vertex_type_degree_ratio,degree_vertex,args = args)
         print("采样前总点数：",len(v2t) ,"点采样后点数 : " , len(add_vertex))
         
-        add_edge = get_add_edge(v2t,add_vertex ,vertex_type_degree_ratio,degree_vertex,num_samples = args.edge_num) 
+        add_edge = get_add_edge(v2t,add_vertex ,vertex_type_degree_ratio,degree_vertex ,args = args) 
         #add_edge : list [(i,j),(x,y)...]
-        print("加边数量:", len(add_edge))'''
+        print("加边数量:", len(add_edge))
         edge_index = data.edge_index
         edge_list = edge_index.t().tolist()
         edge_list = [tuple(sorted(edge)) for edge in edge_list]  # 排序后确保 (src, dst) 的顺序一致
         edge_list = list(set(edge_list))  # 去掉重复边
-        '''add_edge += edge_list'''
-        topoinf_all_e = compute_add_edge_topoinf(topoinf_calculator, pseudo_label_matrix=pseudo_label_matrix.cpu(), add_edge = edge_list)
-       
-        
-        pos_num , neg_num = get_edges_nums(topoinf_all_e, args)   
+        add_edge += edge_list
+        topoinf_all_e = compute_add_edge_topoinf(topoinf_calculator, pseudo_label_matrix=pseudo_label_matrix.cpu(), add_edge = add_edge)
+
+        pos_num , neg_num = get_edges_nums(topoinf_all_e, args)  
         edges_haven_deleted = set()
         
         delete_mag_list = args.delete_rate_list if args.delete_unit in ['mode_ratio', 'ratio'] \
@@ -183,7 +182,8 @@ if __name__ == '__main__':
             data = topoinf_based_deleting_edges(edges_haven_deleted ,data, topoinf_all_e, args ,coefficients)
 
             ### Eval `best_model` on Topology with TopoInf deleting
-            eval_result_after_topoinf_before_retrain = eval(best_model, data, criterion=None, get_detail=False)
+            data = data.to(device)
+            eval_result_after_topoinf_before_retrain = eval(best_model, data, criterion=None, get_detail=False,totalnum=total)
             print_eval_result(eval_result_after_topoinf_before_retrain, prefix=f'[After TopoInf ({key}) but NOT Retrain]')
             record_dict_per_run[key]['before_retrain'] = eval_result_after_topoinf_before_retrain
 
@@ -192,7 +192,7 @@ if __name__ == '__main__':
                 RunExp(data, model, args, criterion, 
                     run_index=run_index, seed=seed,
                     save_file_suffix=f'after_{key}',
-                    return_model=False)
+                    return_model=False,totalnum=total)
             record_dict_per_run[key]['after_retrain'] = best_eval_result_after_topoinf_after_retrain
             print_eval_result(best_eval_result_after_topoinf_after_retrain, prefix=f'[After TopoInf ({key}) with Retrain]')
             

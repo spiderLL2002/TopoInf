@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # 确保脚本运行的当前工作目录正确
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -22,26 +23,30 @@ def preprocess_data(file_path):
 def plot_dataset(dataset):
     plt.figure(figsize=(12, 8))
 
-    colors = ['red', 'blue', 'yellow']
+    colors = sns.color_palette("Set2", n_colors=len(files))
+    markers = ['o', 's', '^']
     labels = ['GCN', 'SGC', 'APPNP']
 
-    for file, color, label in zip(files, colors, labels):
+    for file, color, label, marker in zip(files, colors, labels, markers):
         file_path = os.path.join(base_dir, dataset, file)
         data = preprocess_data(file_path)
 
         # 绘制原始数据点
-        plt.scatter(data['ratio'], data['test_acc_mean'], label=label, color=color, s=1, alpha=0.7)
+        plt.scatter(data['ratio'], data['test_acc_mean'], label=label, color=color, s=20, marker=marker, alpha=0.5)
         
-        # 绘制连线
-        plt.plot(data['ratio'], data['test_acc_mean'], color=color, linewidth=5, alpha=0.8)
+        # 绘制连线 - 增加线条粗细
+        plt.plot(data['ratio'], data['test_acc_mean'], color=color, linestyle='--', linewidth=6, alpha=0.8)
 
-    plt.title(f'{dataset.capitalize()}: Test Accuracy vs Ratio', fontsize=16)
-    plt.xlabel('Ratio', fontsize=12)
-    plt.ylabel('Test Accuracy (%)', fontsize=12)
+    plt.title(f'{dataset.capitalize()}: Test Accuracy vs Ratio', fontsize=20)
+
     plt.grid(alpha=0.3)
 
-    # 添加图例
-    plt.legend()
+    # 添加图例并增加字体大小
+    plt.legend(fontsize=24)
+
+    # 设置刻度标签字体大小
+    plt.xticks(fontsize=24)
+    plt.yticks(fontsize=24)
 
     # 确保输出目录存在
     output_dir = './vis1/'

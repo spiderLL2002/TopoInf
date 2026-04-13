@@ -69,29 +69,29 @@ def get_v2t_t2v (pseudo_label_matrix):
 
     return v2t, t2v
 
-def select_vertex(vertex_type_degree_ratio,degree_vertex, num_samples = 1500, alpha_degree = 0.1,alpha_ratio = 0.8):
+def select_vertex(vertex_type_degree_ratio,degree_vertex, args):
    
-    probabilities = torch.exp(-(alpha_ratio * vertex_type_degree_ratio +alpha_degree  * degree_vertex))
+    probabilities = torch.exp(-(args.ratio_coefficient * vertex_type_degree_ratio +args.degree_coefficient  * degree_vertex))
 
     probabilities = torch.nn.functional.softmax(probabilities, dim=0)
-    selected_indices = torch.multinomial(probabilities, num_samples=num_samples)
+    selected_indices = torch.multinomial(probabilities, num_samples=args.point_num)
 
     return selected_indices
-def get_add_edge(v2t,add_vertex ,vertex_type_degree_ratio,degree_vertex, num_samples = 1000 ,alpha_degree = 0.1,alpha_ratio = 1.3):
+def get_add_edge(v2t,add_vertex ,vertex_type_degree_ratio,degree_vertex, args):
     t2v = defaultdict(list) 
     add_edge = list()
     prob = []
     for node in add_vertex:
         label = v2t[node].item()
         for prenode in t2v[label]:
-            prob.append(exp(-alpha_ratio * (vertex_type_degree_ratio[node] + vertex_type_degree_ratio[prenode]) 
-                            - alpha_degree * (degree_vertex[node] + degree_vertex[prenode])))
+            prob.append(exp(-args.ratio_coefficient * (vertex_type_degree_ratio[node] + vertex_type_degree_ratio[prenode]) 
+                            - args.degree_coefficient * (degree_vertex[node] + degree_vertex[prenode])))
             add_edge.append((int(node), int(prenode)))
         t2v[label].append(node)
         
     prob = torch.tensor(prob)
     prob = torch.nn.functional.softmax(prob, dim=0)
-    selected_indices = list(torch.multinomial(prob, num_samples=num_samples))
+    selected_indices = list(torch.multinomial(prob, num_samples=args.edge_num))
     
     selected_add_edge = [add_edge[idx] for idx in selected_indices]
     return selected_add_edge
@@ -128,8 +128,6 @@ def compute_pseudo_label_topoinf(topoinf_calculator, pseudo_label_matrix, args):
     topoinf_calculator._pre_processing(label_matrix_g = pseudo_label_matrix, 
                                         node_masking = None)
     start_time = time.time()
-    topoinf_calculator._pre_processing()
-    topoinf_calculator._set_global()
     topoinf_all_e = topoinf_calculator._compute_topoinf_edges_mp(_proc = 24, verbose=True)
     end_time = time.time()
     print(f"Computation Time for All [{len(topoinf_calculator.G.edges)}] Edges on [{args.dataset.upper()}]: {end_time-start_time:.2f} Seconds.")
@@ -140,8 +138,6 @@ def compute_add_edge_topoinf(topoinf_calculator, pseudo_label_matrix ,add_edge )
     topoinf_calculator._pre_processing(label_matrix_g = pseudo_label_matrix, 
                                         node_masking = None)
     start_time = time.time()
-    topoinf_calculator._pre_processing()
-    topoinf_calculator._set_global()
     topoinf_all_e = topoinf_calculator._compute_topoinf_edges_mp(_proc = 24 ,edge_list = add_edge , verbose = True)
     end_time = time.time()
     print(f"Computation add_edge Time  : {end_time-start_time:.2f} Seconds.")

@@ -1,0 +1,2726 @@
+{
+    "seed": 2024,
+    "dataset": "citeseer",
+    "model": "SGC",
+    "device": 1,
+    "n_runs": 10,
+    "split_mode": "number",
+    "train_rate": 0.6,
+    "val_rate": 0.2,
+    "num_train_per_class": 20,
+    "num_val": 500,
+    "num_test": 1000,
+    "num_layers": 3,
+    "hidden": 64,
+    "dropout": 0.5,
+    "K_appnp": 3,
+    "alpha_appnp": 0.0,
+    "dprate": 0.5,
+    "Init": "PPR",
+    "alpha": 0.1,
+    "lr": 0.01,
+    "weight_decay": 0.0005,
+    "n_epochs": 200,
+    "eval_interval": 1,
+    "print_interval": 10,
+    "early_stopping": 100,
+    "early_stopping_tolerance": 1,
+    "not_save": false,
+    "perf_save_root_dir": "./topoinf_pseudo_label_model_performance/",
+    "save_reduced_perf": false,
+    "save_detailed_perf": false,
+    "use_correct_and_smooth": false,
+    "one_hot_mask": [
+        "train_mask",
+        "val_mask"
+    ],
+    "pseudo_label_temperature": 0.1,
+    "delete_unit": "ratio",
+    "delete_mode": "pos",
+    "delete_rate_list": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+    ],
+    "delete_num_list": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+    ],
+    "topoinf_threshold": 0.05,
+    "k_order": 3,
+    "without_self_loops": false,
+    "distance_metric": "inner_product",
+    "coefficients": "last",
+    "lambda_reg": 0.1,
+    "not_verbose": false,
+    "single_processing": false,
+    "mp_core": 8,
+    "delete_step_length": 50,
+    "entropy_aware": false,
+    "point_num": 1500,
+    "edge_num": 20000,
+    "ratio_coefficient": 1.0,
+    "degree_coefficient": 3.0,
+    "save_dir": "./topoinf_pseudo_label_model_performance/citeseer_sgc/delete_[pos]_by_[ratio]_masking_[train_mask+val_mask]_cs_[false]_order_[3]_thr_[5.0e-02]",
+    "run_[1]": {
+        "seed": 2019024262,
+        "before_topoinf": {
+            "train_mask": {
+                "acc": 0.8916666666666667
+            },
+            "val_mask": {
+                "acc": 0.676
+            },
+            "test_mask": {
+                "acc": 0.658
+            },
+            "train_time": 1.9676504135131836
+        },
+        "delete_[ratio]_[1]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.8833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6725
+                },
+                "test_mask": {
+                    "acc": 0.6635
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.975
+                },
+                "val_mask": {
+                    "acc": 0.6825
+                },
+                "test_mask": {
+                    "acc": 0.6725
+                },
+                "train_time": 2.096709728240967
+            }
+        },
+        "delete_[ratio]_[2]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9666666666666667
+                },
+                "val_mask": {
+                    "acc": 0.682
+                },
+                "test_mask": {
+                    "acc": 0.675
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.8
+                },
+                "val_mask": {
+                    "acc": 0.686
+                },
+                "test_mask": {
+                    "acc": 0.677
+                },
+                "train_time": 1.9688472747802734
+            }
+        },
+        "delete_[ratio]_[3]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.8
+                },
+                "val_mask": {
+                    "acc": 0.6948738635424337
+                },
+                "test_mask": {
+                    "acc": 0.6788738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.975
+                },
+                "val_mask": {
+                    "acc": 0.7028738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6708738635424338
+                },
+                "train_time": 2.0396835803985596
+            }
+        },
+        "delete_[ratio]_[4]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.975
+                },
+                "val_mask": {
+                    "acc": 0.6993484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6673484692283496
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7033484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6643484692283496
+                },
+                "train_time": 2.4545705318450928
+            }
+        },
+        "delete_[ratio]_[5]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7094999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6615
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.975
+                },
+                "val_mask": {
+                    "acc": 0.7094999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6785
+                },
+                "train_time": 2.558950662612915
+            }
+        },
+        "delete_[ratio]_[6]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.975
+                },
+                "val_mask": {
+                    "acc": 0.7113484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6813484692283496
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.8916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7113484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6843484692283496
+                },
+                "train_time": 2.669808864593506
+            }
+        },
+        "delete_[ratio]_[7]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.8916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7168738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6828738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.8916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7108738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6808738635424338
+                },
+                "train_time": 1.930936336517334
+            }
+        },
+        "delete_[ratio]_[8]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9
+                },
+                "val_mask": {
+                    "acc": 0.716
+                },
+                "test_mask": {
+                    "acc": 0.678
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.7666666666666667
+                },
+                "val_mask": {
+                    "acc": 0.718
+                },
+                "test_mask": {
+                    "acc": 0.658
+                },
+                "train_time": 2.013392686843872
+            }
+        },
+        "delete_[ratio]_[9]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.775
+                },
+                "val_mask": {
+                    "acc": 0.7184999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6565
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.7833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.7344999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6705
+                },
+                "train_time": 2.431854009628296
+            }
+        },
+        "delete_[ratio]_[10]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.7916666666666666
+                },
+                "val_mask": {
+                    "acc": 0.736
+                },
+                "test_mask": {
+                    "acc": 0.666
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.7916666666666666
+                },
+                "val_mask": {
+                    "acc": 0.746
+                },
+                "test_mask": {
+                    "acc": 0.684
+                },
+                "train_time": 3.068169593811035
+            }
+        }
+    },
+    "run_[2]": {
+        "seed": 1304602151,
+        "before_topoinf": {
+            "train_mask": {
+                "acc": 0.95
+            },
+            "val_mask": {
+                "acc": 0.65
+            },
+            "test_mask": {
+                "acc": 0.651
+            },
+            "train_time": 2.2068636417388916
+        },
+        "delete_[ratio]_[1]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.95
+                },
+                "val_mask": {
+                    "acc": 0.6425
+                },
+                "test_mask": {
+                    "acc": 0.6545
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.8083333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6625
+                },
+                "test_mask": {
+                    "acc": 0.6805
+                },
+                "train_time": 2.4655885696411133
+            }
+        },
+        "delete_[ratio]_[2]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.8166666666666667
+                },
+                "val_mask": {
+                    "acc": 0.666
+                },
+                "test_mask": {
+                    "acc": 0.6880000000000001
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.8833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.654
+                },
+                "test_mask": {
+                    "acc": 0.66
+                },
+                "train_time": 2.8203518390655518
+            }
+        },
+        "delete_[ratio]_[3]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.875
+                },
+                "val_mask": {
+                    "acc": 0.6528738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6588738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6608738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6378738635424338
+                },
+                "train_time": 2.681847333908081
+            }
+        },
+        "delete_[ratio]_[4]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6673484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6393484692283495
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6853484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6513484692283495
+                },
+                "train_time": 2.7738711833953857
+            }
+        },
+        "delete_[ratio]_[5]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6895
+                },
+                "test_mask": {
+                    "acc": 0.6485
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6795
+                },
+                "test_mask": {
+                    "acc": 0.6345
+                },
+                "train_time": 2.8357341289520264
+            }
+        },
+        "delete_[ratio]_[6]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6773484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6343484692283495
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.8666666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6793484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6553484692283496
+                },
+                "train_time": 2.372561454772949
+            }
+        },
+        "delete_[ratio]_[7]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.8666666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6828738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6548738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.8833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6888738635424339
+                },
+                "test_mask": {
+                    "acc": 0.6618738635424338
+                },
+                "train_time": 2.472015380859375
+            }
+        },
+        "delete_[ratio]_[8]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.8833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.686
+                },
+                "test_mask": {
+                    "acc": 0.66
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.694
+                },
+                "test_mask": {
+                    "acc": 0.659
+                },
+                "train_time": 2.743332624435425
+            }
+        },
+        "delete_[ratio]_[9]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6984999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6595
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7024999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6535
+                },
+                "train_time": 2.8840854167938232
+            }
+        },
+        "delete_[ratio]_[10]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.698
+                },
+                "test_mask": {
+                    "acc": 0.649
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.692
+                },
+                "test_mask": {
+                    "acc": 0.649
+                },
+                "train_time": 3.3024938106536865
+            }
+        }
+    },
+    "run_[3]": {
+        "seed": 2140188135,
+        "before_topoinf": {
+            "train_mask": {
+                "acc": 0.9666666666666667
+            },
+            "val_mask": {
+                "acc": 0.65
+            },
+            "test_mask": {
+                "acc": 0.643
+            },
+            "train_time": 2.3323068618774414
+        },
+        "delete_[ratio]_[1]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9666666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6445
+                },
+                "test_mask": {
+                    "acc": 0.6475
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.8833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6565
+                },
+                "test_mask": {
+                    "acc": 0.6345
+                },
+                "train_time": 2.097273826599121
+            }
+        },
+        "delete_[ratio]_[2]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9
+                },
+                "val_mask": {
+                    "acc": 0.65
+                },
+                "test_mask": {
+                    "acc": 0.634
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.64
+                },
+                "test_mask": {
+                    "acc": 0.644
+                },
+                "train_time": 2.212111473083496
+            }
+        },
+        "delete_[ratio]_[3]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6448738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6428738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6588738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6398738635424338
+                },
+                "train_time": 2.4603567123413086
+            }
+        },
+        "delete_[ratio]_[4]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.975
+                },
+                "val_mask": {
+                    "acc": 0.6653484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6383484692283495
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6813484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6453484692283495
+                },
+                "train_time": 2.4178407192230225
+            }
+        },
+        "delete_[ratio]_[5]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6835
+                },
+                "test_mask": {
+                    "acc": 0.6445
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.8916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6835
+                },
+                "test_mask": {
+                    "acc": 0.6635
+                },
+                "train_time": 2.4697697162628174
+            }
+        },
+        "delete_[ratio]_[6]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.8916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6873484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6643484692283496
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6873484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6503484692283495
+                },
+                "train_time": 3.0416135787963867
+            }
+        },
+        "delete_[ratio]_[7]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6868738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6488738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6868738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6538738635424338
+                },
+                "train_time": 3.446207284927368
+            }
+        },
+        "delete_[ratio]_[8]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.686
+                },
+                "test_mask": {
+                    "acc": 0.654
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.686
+                },
+                "test_mask": {
+                    "acc": 0.651
+                },
+                "train_time": 2.7438886165618896
+            }
+        },
+        "delete_[ratio]_[9]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6825
+                },
+                "test_mask": {
+                    "acc": 0.6465
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6865
+                },
+                "test_mask": {
+                    "acc": 0.6525
+                },
+                "train_time": 2.6798815727233887
+            }
+        },
+        "delete_[ratio]_[10]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.688
+                },
+                "test_mask": {
+                    "acc": 0.648
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.692
+                },
+                "test_mask": {
+                    "acc": 0.654
+                },
+                "train_time": 3.513777732849121
+            }
+        }
+    },
+    "run_[4]": {
+        "seed": 4137125744,
+        "before_topoinf": {
+            "train_mask": {
+                "acc": 0.875
+            },
+            "val_mask": {
+                "acc": 0.714
+            },
+            "test_mask": {
+                "acc": 0.702
+            },
+            "train_time": 2.0795626640319824
+        },
+        "delete_[ratio]_[1]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.875
+                },
+                "val_mask": {
+                    "acc": 0.7024999999999999
+                },
+                "test_mask": {
+                    "acc": 0.7064999999999999
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9
+                },
+                "val_mask": {
+                    "acc": 0.7144999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6994999999999999
+                },
+                "train_time": 2.0052380561828613
+            }
+        },
+        "delete_[ratio]_[2]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.8833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.726
+                },
+                "test_mask": {
+                    "acc": 0.701
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.875
+                },
+                "val_mask": {
+                    "acc": 0.722
+                },
+                "test_mask": {
+                    "acc": 0.697
+                },
+                "train_time": 2.0106005668640137
+            }
+        },
+        "delete_[ratio]_[3]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.875
+                },
+                "val_mask": {
+                    "acc": 0.7268738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6998738635424337
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9
+                },
+                "val_mask": {
+                    "acc": 0.7428738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6988738635424337
+                },
+                "train_time": 1.8895814418792725
+            }
+        },
+        "delete_[ratio]_[4]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9
+                },
+                "val_mask": {
+                    "acc": 0.7473484692283495
+                },
+                "test_mask": {
+                    "acc": 0.7043484692283495
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.8916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7573484692283495
+                },
+                "test_mask": {
+                    "acc": 0.7133484692283495
+                },
+                "train_time": 1.8742501735687256
+            }
+        },
+        "delete_[ratio]_[5]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.8916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7494999999999999
+                },
+                "test_mask": {
+                    "acc": 0.7104999999999999
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.8916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7575
+                },
+                "test_mask": {
+                    "acc": 0.7074999999999999
+                },
+                "train_time": 1.9013984203338623
+            }
+        },
+        "delete_[ratio]_[6]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.8833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.7553484692283495
+                },
+                "test_mask": {
+                    "acc": 0.7083484692283495
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9083333333333333
+                },
+                "val_mask": {
+                    "acc": 0.7493484692283495
+                },
+                "test_mask": {
+                    "acc": 0.7003484692283495
+                },
+                "train_time": 1.8638322353363037
+            }
+        },
+        "delete_[ratio]_[7]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9083333333333333
+                },
+                "val_mask": {
+                    "acc": 0.7568738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6978738635424337
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9083333333333333
+                },
+                "val_mask": {
+                    "acc": 0.7668738635424338
+                },
+                "test_mask": {
+                    "acc": 0.7078738635424338
+                },
+                "train_time": 1.8721542358398438
+            }
+        },
+        "delete_[ratio]_[8]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9166666666666666
+                },
+                "val_mask": {
+                    "acc": 0.766
+                },
+                "test_mask": {
+                    "acc": 0.706
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9083333333333333
+                },
+                "val_mask": {
+                    "acc": 0.768
+                },
+                "test_mask": {
+                    "acc": 0.716
+                },
+                "train_time": 1.9147393703460693
+            }
+        },
+        "delete_[ratio]_[9]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9083333333333333
+                },
+                "val_mask": {
+                    "acc": 0.7705
+                },
+                "test_mask": {
+                    "acc": 0.7154999999999999
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.925
+                },
+                "val_mask": {
+                    "acc": 0.7645
+                },
+                "test_mask": {
+                    "acc": 0.7134999999999999
+                },
+                "train_time": 1.9526166915893555
+            }
+        },
+        "delete_[ratio]_[10]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.925
+                },
+                "val_mask": {
+                    "acc": 0.762
+                },
+                "test_mask": {
+                    "acc": 0.709
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9166666666666666
+                },
+                "val_mask": {
+                    "acc": 0.768
+                },
+                "test_mask": {
+                    "acc": 0.715
+                },
+                "train_time": 1.9366343021392822
+            }
+        }
+    },
+    "run_[5]": {
+        "seed": 3023913752,
+        "before_topoinf": {
+            "train_mask": {
+                "acc": 0.9916666666666667
+            },
+            "val_mask": {
+                "acc": 0.666
+            },
+            "test_mask": {
+                "acc": 0.642
+            },
+            "train_time": 2.467865228652954
+        },
+        "delete_[ratio]_[1]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6625
+                },
+                "test_mask": {
+                    "acc": 0.6455
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6665
+                },
+                "test_mask": {
+                    "acc": 0.6495
+                },
+                "train_time": 2.342818260192871
+            }
+        },
+        "delete_[ratio]_[2]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.668
+                },
+                "test_mask": {
+                    "acc": 0.648
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.975
+                },
+                "val_mask": {
+                    "acc": 0.674
+                },
+                "test_mask": {
+                    "acc": 0.652
+                },
+                "train_time": 2.2371110916137695
+            }
+        },
+        "delete_[ratio]_[3]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6768738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6578738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6808738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6558738635424338
+                },
+                "train_time": 2.176328659057617
+            }
+        },
+        "delete_[ratio]_[4]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6873484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6533484692283495
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6773484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6453484692283495
+                },
+                "train_time": 2.1699211597442627
+            }
+        },
+        "delete_[ratio]_[5]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6815
+                },
+                "test_mask": {
+                    "acc": 0.6435
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6835
+                },
+                "test_mask": {
+                    "acc": 0.6525
+                },
+                "train_time": 2.1472043991088867
+            }
+        },
+        "delete_[ratio]_[6]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6913484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6583484692283496
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7113484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6743484692283496
+                },
+                "train_time": 2.7573390007019043
+            }
+        },
+        "delete_[ratio]_[7]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7188738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6738738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.7248738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6668738635424338
+                },
+                "train_time": 2.748591661453247
+            }
+        },
+        "delete_[ratio]_[8]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.722
+                },
+                "test_mask": {
+                    "acc": 0.667
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.718
+                },
+                "test_mask": {
+                    "acc": 0.663
+                },
+                "train_time": 2.7960667610168457
+            }
+        },
+        "delete_[ratio]_[9]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.7144999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6595
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.7304999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6655
+                },
+                "train_time": 3.1867148876190186
+            }
+        },
+        "delete_[ratio]_[10]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.73
+                },
+                "test_mask": {
+                    "acc": 0.662
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.716
+                },
+                "test_mask": {
+                    "acc": 0.656
+                },
+                "train_time": 2.527883529663086
+            }
+        }
+    },
+    "run_[6]": {
+        "seed": 2230594379,
+        "before_topoinf": {
+            "train_mask": {
+                "acc": 0.95
+            },
+            "val_mask": {
+                "acc": 0.658
+            },
+            "test_mask": {
+                "acc": 0.641
+            },
+            "train_time": 2.4645211696624756
+        },
+        "delete_[ratio]_[1]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.95
+                },
+                "val_mask": {
+                    "acc": 0.6605
+                },
+                "test_mask": {
+                    "acc": 0.6475
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9666666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6785
+                },
+                "test_mask": {
+                    "acc": 0.6575
+                },
+                "train_time": 2.4681239128112793
+            }
+        },
+        "delete_[ratio]_[2]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.682
+                },
+                "test_mask": {
+                    "acc": 0.661
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.678
+                },
+                "test_mask": {
+                    "acc": 0.65
+                },
+                "train_time": 2.623987913131714
+            }
+        },
+        "delete_[ratio]_[3]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6808738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6518738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6928738635424339
+                },
+                "test_mask": {
+                    "acc": 0.6548738635424338
+                },
+                "train_time": 2.6496102809906006
+            }
+        },
+        "delete_[ratio]_[4]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6973484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6523484692283495
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.975
+                },
+                "val_mask": {
+                    "acc": 0.6893484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6523484692283495
+                },
+                "train_time": 2.204035520553589
+            }
+        },
+        "delete_[ratio]_[5]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.975
+                },
+                "val_mask": {
+                    "acc": 0.6895
+                },
+                "test_mask": {
+                    "acc": 0.6505
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6994999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6385
+                },
+                "train_time": 2.497447967529297
+            }
+        },
+        "delete_[ratio]_[6]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.7033484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6403484692283495
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6953484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6503484692283495
+                },
+                "train_time": 3.0222387313842773
+            }
+        },
+        "delete_[ratio]_[7]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6948738635424337
+                },
+                "test_mask": {
+                    "acc": 0.6478738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.7068738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6468738635424338
+                },
+                "train_time": 2.593902349472046
+            }
+        },
+        "delete_[ratio]_[8]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.708
+                },
+                "test_mask": {
+                    "acc": 0.645
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.716
+                },
+                "test_mask": {
+                    "acc": 0.651
+                },
+                "train_time": 2.559377431869507
+            }
+        },
+        "delete_[ratio]_[9]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7184999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6495
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.7104999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6495
+                },
+                "train_time": 2.567671775817871
+            }
+        },
+        "delete_[ratio]_[10]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.708
+                },
+                "test_mask": {
+                    "acc": 0.644
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.708
+                },
+                "test_mask": {
+                    "acc": 0.649
+                },
+                "train_time": 2.6422674655914307
+            }
+        }
+    },
+    "run_[7]": {
+        "seed": 1789157344,
+        "before_topoinf": {
+            "train_mask": {
+                "acc": 0.9666666666666667
+            },
+            "val_mask": {
+                "acc": 0.69
+            },
+            "test_mask": {
+                "acc": 0.677
+            },
+            "train_time": 2.2849626541137695
+        },
+        "delete_[ratio]_[1]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9583333333333334
+                },
+                "val_mask": {
+                    "acc": 0.6944999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6785
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9666666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6905
+                },
+                "test_mask": {
+                    "acc": 0.6605
+                },
+                "train_time": 2.3939530849456787
+            }
+        },
+        "delete_[ratio]_[2]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9666666666666667
+                },
+                "val_mask": {
+                    "acc": 0.684
+                },
+                "test_mask": {
+                    "acc": 0.664
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.694
+                },
+                "test_mask": {
+                    "acc": 0.695
+                },
+                "train_time": 2.265366315841675
+            }
+        },
+        "delete_[ratio]_[3]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6968738635424337
+                },
+                "test_mask": {
+                    "acc": 0.6928738635424339
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7128738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6798738635424338
+                },
+                "train_time": 2.7232203483581543
+            }
+        },
+        "delete_[ratio]_[4]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7093484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6733484692283496
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.7113484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6773484692283496
+                },
+                "train_time": 2.6193156242370605
+            }
+        },
+        "delete_[ratio]_[5]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.7194999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6765
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7114999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6805
+                },
+                "train_time": 2.246812105178833
+            }
+        },
+        "delete_[ratio]_[6]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7133484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6783484692283496
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7233484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6893484692283496
+                },
+                "train_time": 2.298243522644043
+            }
+        },
+        "delete_[ratio]_[7]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.7228738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6888738635424339
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7268738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6908738635424339
+                },
+                "train_time": 2.651111602783203
+            }
+        },
+        "delete_[ratio]_[8]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.73
+                },
+                "test_mask": {
+                    "acc": 0.695
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.718
+                },
+                "test_mask": {
+                    "acc": 0.674
+                },
+                "train_time": 2.695850133895874
+            }
+        },
+        "delete_[ratio]_[9]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.7144999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6745
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7224999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6855
+                },
+                "train_time": 2.7447245121002197
+            }
+        },
+        "delete_[ratio]_[10]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.722
+                },
+                "test_mask": {
+                    "acc": 0.68
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.73
+                },
+                "test_mask": {
+                    "acc": 0.684
+                },
+                "train_time": 2.6919145584106445
+            }
+        }
+    },
+    "run_[8]": {
+        "seed": 3193323609,
+        "before_topoinf": {
+            "train_mask": {
+                "acc": 0.9916666666666667
+            },
+            "val_mask": {
+                "acc": 0.654
+            },
+            "test_mask": {
+                "acc": 0.651
+            },
+            "train_time": 3.475254774093628
+        },
+        "delete_[ratio]_[1]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6545
+                },
+                "test_mask": {
+                    "acc": 0.6555
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6765
+                },
+                "test_mask": {
+                    "acc": 0.6685
+                },
+                "train_time": 3.308833360671997
+            }
+        },
+        "delete_[ratio]_[2]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.672
+                },
+                "test_mask": {
+                    "acc": 0.672
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.678
+                },
+                "test_mask": {
+                    "acc": 0.667
+                },
+                "train_time": 3.0108120441436768
+            }
+        },
+        "delete_[ratio]_[3]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6828738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6668738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6748738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6568738635424338
+                },
+                "train_time": 3.013420581817627
+            }
+        },
+        "delete_[ratio]_[4]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6833484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6563484692283496
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6793484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6533484692283495
+                },
+                "train_time": 3.004664659500122
+            }
+        },
+        "delete_[ratio]_[5]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6795
+                },
+                "test_mask": {
+                    "acc": 0.6535
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6735
+                },
+                "test_mask": {
+                    "acc": 0.6465
+                },
+                "train_time": 3.1632816791534424
+            }
+        },
+        "delete_[ratio]_[6]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6753484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6483484692283495
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6913484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6523484692283495
+                },
+                "train_time": 3.040992021560669
+            }
+        },
+        "delete_[ratio]_[7]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6948738635424337
+                },
+                "test_mask": {
+                    "acc": 0.6518738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6928738635424339
+                },
+                "test_mask": {
+                    "acc": 0.6648738635424338
+                },
+                "train_time": 3.3664205074310303
+            }
+        },
+        "delete_[ratio]_[8]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6900000000000001
+                },
+                "test_mask": {
+                    "acc": 0.661
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7
+                },
+                "test_mask": {
+                    "acc": 0.656
+                },
+                "train_time": 3.326254367828369
+            }
+        },
+        "delete_[ratio]_[9]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7004999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6545
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6924999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6455
+                },
+                "train_time": 3.0972559452056885
+            }
+        },
+        "delete_[ratio]_[10]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.688
+                },
+                "test_mask": {
+                    "acc": 0.64
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.684
+                },
+                "test_mask": {
+                    "acc": 0.638
+                },
+                "train_time": 3.3213369846343994
+            }
+        }
+    },
+    "run_[9]": {
+        "seed": 3276249028,
+        "before_topoinf": {
+            "train_mask": {
+                "acc": 0.9916666666666667
+            },
+            "val_mask": {
+                "acc": 0.68
+            },
+            "test_mask": {
+                "acc": 0.677
+            },
+            "train_time": 3.47703218460083
+        },
+        "delete_[ratio]_[1]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6785
+                },
+                "test_mask": {
+                    "acc": 0.6815
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6845
+                },
+                "test_mask": {
+                    "acc": 0.6705
+                },
+                "train_time": 2.8298234939575195
+            }
+        },
+        "delete_[ratio]_[2]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.682
+                },
+                "test_mask": {
+                    "acc": 0.675
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.676
+                },
+                "test_mask": {
+                    "acc": 0.684
+                },
+                "train_time": 2.9969844818115234
+            }
+        },
+        "delete_[ratio]_[3]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6808738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6818738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6828738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6678738635424338
+                },
+                "train_time": 2.4722366333007812
+            }
+        },
+        "delete_[ratio]_[4]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6893484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6693484692283496
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6833484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6733484692283496
+                },
+                "train_time": 2.6483490467071533
+            }
+        },
+        "delete_[ratio]_[5]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6855
+                },
+                "test_mask": {
+                    "acc": 0.6725
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6835
+                },
+                "test_mask": {
+                    "acc": 0.6775
+                },
+                "train_time": 3.0067617893218994
+            }
+        },
+        "delete_[ratio]_[6]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6873484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6773484692283496
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6993484692283495
+                },
+                "test_mask": {
+                    "acc": 0.6853484692283496
+                },
+                "train_time": 2.81038498878479
+            }
+        },
+        "delete_[ratio]_[7]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6968738635424337
+                },
+                "test_mask": {
+                    "acc": 0.6858738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7008738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6798738635424338
+                },
+                "train_time": 2.875558853149414
+            }
+        },
+        "delete_[ratio]_[8]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.698
+                },
+                "test_mask": {
+                    "acc": 0.679
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.702
+                },
+                "test_mask": {
+                    "acc": 0.678
+                },
+                "train_time": 2.882228374481201
+            }
+        },
+        "delete_[ratio]_[9]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6964999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6755
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.7064999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6765
+                },
+                "train_time": 2.580996513366699
+            }
+        },
+        "delete_[ratio]_[10]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.712
+                },
+                "test_mask": {
+                    "acc": 0.672
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.7
+                },
+                "test_mask": {
+                    "acc": 0.661
+                },
+                "train_time": 2.26473069190979
+            }
+        }
+    },
+    "run_[10]": {
+        "seed": 1676351658,
+        "before_topoinf": {
+            "train_mask": {
+                "acc": 0.9916666666666667
+            },
+            "val_mask": {
+                "acc": 0.662
+            },
+            "test_mask": {
+                "acc": 0.64
+            },
+            "train_time": 2.7881391048431396
+        },
+        "delete_[ratio]_[1]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6665
+                },
+                "test_mask": {
+                    "acc": 0.6445
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6745
+                },
+                "test_mask": {
+                    "acc": 0.6325
+                },
+                "train_time": 3.2281665802001953
+            }
+        },
+        "delete_[ratio]_[2]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.676
+                },
+                "test_mask": {
+                    "acc": 0.636
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.668
+                },
+                "test_mask": {
+                    "acc": 0.644
+                },
+                "train_time": 2.948723793029785
+            }
+        },
+        "delete_[ratio]_[3]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6648738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6508738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6688738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6358738635424338
+                },
+                "train_time": 2.97623872756958
+            }
+        },
+        "delete_[ratio]_[4]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6713484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6353484692283495
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6633484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6463484692283495
+                },
+                "train_time": 2.955033540725708
+            }
+        },
+        "delete_[ratio]_[5]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6655
+                },
+                "test_mask": {
+                    "acc": 0.6505
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6835
+                },
+                "test_mask": {
+                    "acc": 0.6615
+                },
+                "train_time": 2.9514963626861572
+            }
+        },
+        "delete_[ratio]_[6]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6773484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6613484692283496
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6753484692283496
+                },
+                "test_mask": {
+                    "acc": 0.6553484692283496
+                },
+                "train_time": 2.9716439247131348
+            }
+        },
+        "delete_[ratio]_[7]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 1.0
+                },
+                "val_mask": {
+                    "acc": 0.6728738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6528738635424338
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6808738635424338
+                },
+                "test_mask": {
+                    "acc": 0.6558738635424338
+                },
+                "train_time": 3.403424024581909
+            }
+        },
+        "delete_[ratio]_[8]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.68
+                },
+                "test_mask": {
+                    "acc": 0.657
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.686
+                },
+                "test_mask": {
+                    "acc": 0.658
+                },
+                "train_time": 2.9971373081207275
+            }
+        },
+        "delete_[ratio]_[9]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9916666666666667
+                },
+                "val_mask": {
+                    "acc": 0.6905
+                },
+                "test_mask": {
+                    "acc": 0.6575
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.6924999999999999
+                },
+                "test_mask": {
+                    "acc": 0.6605
+                },
+                "train_time": 2.8930718898773193
+            }
+        },
+        "delete_[ratio]_[10]": {
+            "before_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.688
+                },
+                "test_mask": {
+                    "acc": 0.656
+                }
+            },
+            "after_retrain": {
+                "train_mask": {
+                    "acc": 0.9833333333333333
+                },
+                "val_mask": {
+                    "acc": 0.696
+                },
+                "test_mask": {
+                    "acc": 0.653
+                },
+                "train_time": 3.055807590484619
+            }
+        }
+    }
+}

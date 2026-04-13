@@ -118,6 +118,10 @@ def add_argument_base(parser):
                         default=1000)
     parser.add_argument('--edge-num', type=int, 
                         default=10000)
+    parser.add_argument('--ratio-coefficient', type=float, 
+                        default=0.5, help='the coefficient for ratio.') 
+    parser.add_argument('--degree-coefficient', type=float, 
+                        default=2, help='the coefficient for degree.') 
     # After Computing
     
     # args = parser.parse_args()                    # NOTE: used when using command line

@@ -8,7 +8,7 @@ python topoinf_pseudo_label_train_model.py \
 	--delete-unit ratio \
 	--delete-mode neg \
 	--entropy-aware True \
-	--entropy-coefficient 0 \
+	--entropy-coefficient 0.02 \
 	--one-hot-mask train_mask \
 
 :<< "a"

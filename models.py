@@ -64,7 +64,6 @@ class GCN_Net(torch.nn.Module):
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
-        edge_index = edge_index.to(x.device)
         x = F.dropout(x, p=self.dropout, training=self.training)    # NOTE: there is a dropout layer.
         for i in range(self.num_layers - 1):
             x = self.conv_list[i](x, edge_index)
@@ -136,7 +135,6 @@ class APPNP_Net(torch.nn.Module):
             x = self.lins[i](x)
             if i != self.num_lins - 1:
                 x = F.relu(x)
-        edge_index = edge_index.to(x.device)
         x = self.prop1(x, edge_index)
         return F.log_softmax(x, dim=1)
 
@@ -179,8 +177,6 @@ class SGC_Net(torch.nn.Module):
         a_hat = get_normalized_adj_with_renormalization(edge_index, num_nodes)
         
         for _ in range(self.num_layers):
-            
-            a_hat = a_hat.to(x.device)
             x = a_hat @ x
 
         for i in range(self.num_lins): 

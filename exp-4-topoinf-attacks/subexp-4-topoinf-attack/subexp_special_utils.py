@@ -41,9 +41,12 @@ def analyse_and_save_recording( recording: dict = {}, args = None):
     analysis_attr_list = ['before_topoinf', 'before_retrain', 'after_retrain']
     
     unit_value_list =  args.delete_num_list if args.delete_unit in ['number'] else args.delete_rate_list
-    
-    for i,unit_value in enumerate(unit_value_list):
-        unit_key = f'delete_[{args.delete_unit}]_[{unit_value*(i+1)}]'
+    total =  0 
+    for unit_value in unit_value_list:
+        total += unit_value
+        unit_key = f'delete_[{args.delete_unit}]_[{total}]'
+            
+       
         analysed_recording[unit_key] = {}
         for analysis_attr in analysis_attr_list:
             analysed_recording[unit_key][analysis_attr] = {}

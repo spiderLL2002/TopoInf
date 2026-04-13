@@ -93,19 +93,3 @@ if __name__ == '__main__':
         # 打印分组结果
         for label, nodes in label_to_nodes.items():
             print(f"{d}的标签 {label} 的节点有 {len(nodes)} 个，需要算{len(nodes)**2}个topoinf")
-
-
-
-'''if __name__ == '__main__':
-    while True  :
-        try:
-            for dataset_name in _ALL_DATASETS_:
-                data = DataLoader(dataset_name)
-                print(f"{dataset_name.upper()}: {data}")
-                analyse_class_distribution(data)
-                print('-'*50)
-        except Exception as e:
-            print("失败！！！")
-        print(f'Tested All {len(_ALL_DATASETS_)} Datasets: {_ALL_DATASETS_}')
-        
-        time.sleep(5)'''

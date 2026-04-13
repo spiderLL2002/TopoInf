@@ -168,8 +168,9 @@ if __name__ == '__main__':
         delete_mag_list = args.delete_rate_list if args.delete_unit in ['mode_ratio', 'ratio'] \
                                 else args.delete_num_list
         real_delete_list = []
-        for i,delete_mag in enumerate(delete_mag_list):
-            
+        total =  0 
+        for delete_mag in delete_mag_list:
+            total += delete_mag
             if len(edges_haven_deleted) > pos_num +neg_num :
                 break
             if args.delete_unit in ['mode_ratio', 'ratio']:
@@ -182,7 +183,7 @@ if __name__ == '__main__':
             if args.save_detailed_perf or args.save_reduced_perf:
                 args.save_dir = get_save_dir(args)
            
-            key = f'delete_[{args.delete_unit}]_[{delete_mag*(i+1)}]'
+            key = f'delete_[{args.delete_unit}]_[{total}]'
             record_dict_per_run[key] = {}
             
             
@@ -191,7 +192,7 @@ if __name__ == '__main__':
             
             topoinf_all_e ,data = topoinf_based_deleting_edges\
                 (degree_delete_edge_dict,edges_haven_deleted ,data, topoinf_all_e, args ,coefficients,entropy_dict = entropy_dict,entropy_coefficient = args.entropy_coefficient)
-
+            data = data.to(device)
             ### Eval `best_model` on Topology with TopoInf deleting
             eval_result_after_topoinf_before_retrain = eval(best_model, data, criterion=None, get_detail=False)
             print_eval_result(eval_result_after_topoinf_before_retrain, prefix=f'[After TopoInf ({key}) but NOT Retrain]')

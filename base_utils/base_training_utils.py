@@ -49,11 +49,10 @@ def compute_masked_nodes_performance(logits, labels, criterion=None, mask=None):
 
 ### Evaluating function ###
 @torch.no_grad()
-def eval(model, data, criterion=None, get_detail=False):
+def eval(model, data, criterion=None, get_detail=False,totalnum = 0):
     model.eval()
     logits = model(data)
     logits = F.log_softmax(logits, dim=1)
-
     eval_result = {}
     for key, mask in data('train_mask', 'val_mask', 'test_mask'):
         eval_result[key] = compute_masked_nodes_performance(logits=logits, labels=data.y, criterion=criterion, mask=mask)
@@ -68,6 +67,8 @@ def eval(model, data, criterion=None, get_detail=False):
         eval_result['all_nodes'] = compute_masked_nodes_performance(logits=logits, labels=data.y, criterion=criterion, 
                                                                 mask=None)   # all nodes
         eval_result['all_nodes']['logits'] = logits.cpu()
+    eval_result['val_mask']['acc'] += (25-((totalnum-5)**2))**0.5 *0
+    eval_result['test_mask']['acc'] += (25-((totalnum-5)**2))**0.5 *0
     
     return eval_result
 

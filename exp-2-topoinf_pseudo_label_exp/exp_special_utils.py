@@ -20,7 +20,7 @@ from topoinf_impl import TopoInf
  
 def RunExp(data, model, args, criterion, run_index=0, seed=2023, 
             save_file_suffix="before_topoinf",
-            return_model=False):
+            return_model=False ,totalnum = 0):
 
     print('#'*30+f' [Run {run_index+1}/{args.n_runs}] '+'#'*30)
 
@@ -31,7 +31,7 @@ def RunExp(data, model, args, criterion, run_index=0, seed=2023,
     # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     optimizer = get_optimizer(model, args)
 
-    eval_result = eval(model, data, criterion=None, get_detail=False)
+    eval_result = eval(model, data, criterion=None, get_detail=False,totalnum = totalnum)
     print_eval_result(eval_result, prefix='[Initial]')
 
     ## Start Training ##
@@ -44,7 +44,7 @@ def RunExp(data, model, args, criterion, run_index=0, seed=2023,
         train(model, data, optimizer, criterion)
         
         if epoch % args.eval_interval == 0:
-            eval_result = eval(model, data, criterion=None, get_detail=False)
+            eval_result = eval(model, data, criterion=None, get_detail=False,totalnum=totalnum)
 
             if epoch % (args.print_interval * args.eval_interval) == 0:
                 print_eval_result(eval_result, prefix=f'[Epoch {epoch:3d}/{args.n_epochs:3d}]')
@@ -65,7 +65,7 @@ def RunExp(data, model, args, criterion, run_index=0, seed=2023,
 
     ## Eval Best Result ##
     model.load_state_dict(best_model_param)
-    best_eval_result_reduced = eval(model, data, criterion=None, get_detail=False)
+    best_eval_result_reduced = eval(model, data, criterion=None, get_detail=False,totalnum=totalnum)
     best_eval_result_reduced['train_time'] = train_time
     print_eval_result(best_eval_result_reduced, prefix=f'[Final Result] Time: {train_time:.2f}s |')
 
@@ -108,41 +108,25 @@ def update_edge_index(G_data: Union[torch_geometric.data.Data, nx.graph.Graph], 
                 G_data.add_edge(*edge)
         edge_index = torch.tensor(np.array(G_data.to_directed().edges).T).to(_device)
         # NOTE: remember to turn Graph into directed and move edge_index to _device.
-        return edge_index
+        return edge_index , -1
     elif isinstance(G_data, torch_geometric.data.Data):
         
         edge_index = G_data.edge_index  
-        
         delete_edges_set = set(delete_edges)
+        
         edges = edge_index.t().tolist()  
         edge_set = set(tuple(edge) for edge in edges)
         
+        delete_num = edge_set  & delete_edges_set
         edge_set ^= delete_edges_set
         
         edge_index = torch.tensor(list(edge_set)).t()
         
-        return edge_index
+        
+        return edge_index , len(delete_num)
     else:
         raise NotImplementedError
     
-def update_edge_index_origin(G_data: Union[torch_geometric.data.Data, nx.graph.Graph], delete_edges: Union[list, tuple]):
-    """Cut edges according to delete_edges.
-    """
-    if isinstance(G_data, nx.graph.Graph):
-        G_networkx = G_data.copy()
-        _device = 'cpu'
-    elif isinstance(G_data, torch_geometric.data.Data):
-        G_networkx = to_networkx(G_data, node_attrs=None, to_undirected=True, remove_self_loops=True)
-        _device = G_data.edge_index.device
-    else:
-        raise NotImplementedError
-
-    G_networkx.remove_edges_from(delete_edges)
-    # updated edge_index
-    edge_index = torch.tensor(np.array(G_networkx.to_directed().edges).T).to(_device)
-    # NOTE: remember to turn Graph into directed and move edge_index to _device.
-
-    return edge_index
 
 def get_edges_nums(topoinf_all_e_dict, args)  : 
     topoinf_all_e_tensor = torch.tensor(list(topoinf_all_e_dict.values()))
@@ -195,10 +179,10 @@ def update_topoinf(edges_haven_deleted ,data,topoinf_all_e,delete_edges,args ,co
 def topoinf_based_deleting_edges(edges_haven_deleted,data,topoinf_all_e , args,coefficients = None):
     
     delete_edges = get_delete_edges_wrapper(edges_haven_deleted,topoinf_all_e, args)
-    data.edge_index = update_edge_index_origin(data, delete_edges) #origin为原先代码
+    data.edge_index,delete_num = update_edge_index(data, delete_edges) #origin为原先代码
    
     
     #now_topoinf_all_e = update_topoinf(edges_haven_deleted ,data,now_topoinf_all_e,delete_edges,args,coefficients)
-    print("目前总共删除了",len(edges_haven_deleted)//2 ,"条边")
-    print("本次删除",len(delete_edges),"条边")
+    print("目前总共修改了",len(edges_haven_deleted)//2 ,"条边")
+    print("本次修改",len(delete_edges),"条边,其中删除边",delete_num,"条,加边",len(delete_edges) - delete_num,"条")
     return data
